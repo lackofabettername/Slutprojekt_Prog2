@@ -1,0 +1,5 @@
+# Project exclude paths
+/out/
+/src/game/
+/src/game2/
+/src/utility/internet_OLD/
