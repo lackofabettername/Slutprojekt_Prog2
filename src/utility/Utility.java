@@ -2,6 +2,9 @@ package utility;
 
 import java.io.*;
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.Objects;
+import java.util.function.BiConsumer;
 
 public class Utility {
 
@@ -28,12 +31,25 @@ public class Utility {
         }
     }
 
+    /**
+     * Returns the first value unless it's null, in which case it returns the second.
+     * @param a Returned if it isn't null
+     * @param b Returned if a is null
+     * @return a unless it is null, in which case b is returned
+     */
     public static <T> T orDefault(T a, T b) {
         return a != null ? a : b;
     }
 
-    public static <T> T[] orDefault(T[] a, T[] b) {
-        return a != null ? a : b;
+    public static <T> void forEach(Collection<T> a, Collection<T> b, BiConsumer<T, T> function) {
+        Objects.requireNonNull(a);
+        Objects.requireNonNull(b);
+        if (a.size() != b.size())
+            throw new IllegalArgumentException("The collections must have equal length");
+
+        for (Iterator<T> iterA = a.iterator(), iterB = b.iterator(); iterA.hasNext();) {
+            function.accept(iterA.next(), iterB.next());
+        }
     }
 
     //region Collection-to-Array

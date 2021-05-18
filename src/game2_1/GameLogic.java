@@ -98,13 +98,13 @@ public class GameLogic {
             Projectile projectile = iterator.next();
 
             if (projectile == null) {
-                iterator.remove();
                 continue;
             }
 
             projectile.update(parent.window.Bounds);
 
-            if (projectile.delete) iterator.set(null);
+            if (projectile.delete)
+                iterator.set(null);
         }
 
         gameState.players.forEach((id, player) -> {

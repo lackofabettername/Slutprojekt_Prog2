@@ -326,7 +326,7 @@ public class Debug {
         }
         return output.toString();
     }
-    public static <T extends List<?>> String listCompare(T a, T b) {
+    public static <T extends Collection<?>> String collectionCompare(T a, T b) {
         return arrayCompare(a.toArray(), b.toArray());
     }
     //fixme: this vararg can cause heap pollution     https://www.geeksforgeeks.org/what-is-heap-pollution-in-java-and-how-to-resolve-it/

@@ -101,24 +101,29 @@ public class Player implements Serializable {
         pos.y = MathF.bounce(pos.y, bounds.y, bounds.y + bounds.h);
     }
 
-    void checkIfHit(ArrayList<Projectile> projectiles) {
+    void checkIfHit(Collection<Projectile> projectiles) {
         //TODO: more efficient search
-        for (ListIterator<Projectile> iterator = projectiles.listIterator(); iterator.hasNext(); ) {
-            Projectile projectile = iterator.next();
 
-            if (projectile == null) continue;
-            if (projectile.owner == id) continue;
-            if (projectile.delete) continue;
+        if (projectiles instanceof List temp) {
+            for (ListIterator<Projectile> iterator = temp.listIterator(); iterator.hasNext(); ) {
+                Projectile projectile = iterator.next();
 
-            if (projectile.checkHit(this)) {
-                iterator.set(null);
+                if (projectile == null) continue;
+                if (projectile.owner == id) continue;
+                if (projectile.delete) continue;
 
-                parent.scores.compute(projectile.owner, (ignored, oldScore) ->
-                        (int) (projectile.strength * 100) + (oldScore != null ? oldScore : 0)
-                );
+                if (projectile.checkHit(this)) {
+                    iterator.set(null);
 
-                Debug.log("hit");
+                    parent.scores.compute(projectile.owner, (ignored, oldScore) ->
+                            (int) (projectile.strength * 100) + (oldScore != null ? oldScore : 0)
+                    );
+
+                    Debug.log("hit");
+                }
             }
+        } else {
+            Debug.logWarning("Todo");
         }
     }
 

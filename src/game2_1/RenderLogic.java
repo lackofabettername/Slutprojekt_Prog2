@@ -110,11 +110,12 @@ public class RenderLogic implements WindowLogic {
         g.fill(1);
 
         g.text(String.format("%d, %1.1f %1.1f\n" +
-                        "%1.2f",
+                        "%1.2f\n%s",
                 frameCount,
                 parent.getFrameRate(),
                 t,
-                serverGameState.frameCount
+                serverGameState.frameCount,
+                Debug.collectionCompare(currentGameState.projectiles, previousGameState.projectiles)
                 ), g.width / 2f, g.height / 2f);
         //endregion
 

@@ -2,14 +2,10 @@ package game2_1;
 
 import game2_1.music.BeatHandler;
 import game2_1.music.MusicPlayer;
-import utility.Color;
-import utility.MathF;
-import utility.Utility;
-import utility.Vector2;
+import utility.*;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -22,11 +18,14 @@ public class GameState implements Serializable {
 
     public float frameCount;
     public HashMap<Byte, Player> players;
-    public ArrayList<Projectile> projectiles;
+
+    public static final int ProjectilesBufferSize = 4;
+    public RollingBuffer<Projectile> projectiles;
+
     public HashMap<Byte, Integer> scores;
 
     //region Constructors
-    GameState(BeatHandler beats, String songPath, float frameCount, HashMap<Byte, Player> players, ArrayList<Projectile> projectiles, HashMap<Byte, Integer> scores) {
+    GameState(BeatHandler beats, String songPath, float frameCount, HashMap<Byte, Player> players, RollingBuffer<Projectile> projectiles, HashMap<Byte, Integer> scores) {
         this.beats = beats;
         this.songPath = songPath;
         this.frameCount = frameCount;
@@ -35,10 +34,10 @@ public class GameState implements Serializable {
         this.scores = scores;
     }
     GameState(String songPath) {
-        this(BeatHandler.load(songPath), songPath, -1, new HashMap<>(), new ArrayList<>(), new HashMap<>());
+        this(BeatHandler.load(songPath), songPath, -1, new HashMap<>(), new RollingBuffer<>(ProjectilesBufferSize), new HashMap<>());
     }
     GameState() {
-        this(null, null, -1, new HashMap<>(), new ArrayList<>(), new HashMap<>());
+        this(null, null, -1, new HashMap<>(), new RollingBuffer<>(ProjectilesBufferSize), new HashMap<>());
     }
     //endregion
 
@@ -91,19 +90,18 @@ public class GameState implements Serializable {
 
         //fixme
         //region Projectiles
-        for (int i = 0, j = 0; i < current.projectiles.size(); ++i) {
-            Projectile currentProjectile = current.projectiles.get(i);
-            Projectile previousProjectile;
-
+        temp.projectiles.setPointer(current.projectiles.getPointer());
+        previous.projectiles.setPointer(current.projectiles.getPointer());
+        Utility.forEach(current.projectiles, previous.projectiles, (currentProjectile, previousProjectile) -> {
             if (currentProjectile == null) {
-                ++j;
-                continue;
+                return;
             }
 
-            do {
-                previousProjectile = j < previous.projectiles.size() ? previous.projectiles.get(j) : currentProjectile;
-                ++j;
-            } while (previousProjectile == null);
+            if (previousProjectile == null)
+                previousProjectile = currentProjectile;
+            else if (!currentProjectile.id.equals(previousProjectile.id)) {
+                Debug.logWarning("bad" + System.currentTimeMillis() / 1E3);
+            }
 
             temp.projectiles.add(new Projectile(
                     currentProjectile.owner,
@@ -111,7 +109,24 @@ public class GameState implements Serializable {
                     Vector2.lerp(t, previousProjectile.pos, currentProjectile.pos),
                     Vector2.lerp(t, previousProjectile.vel, currentProjectile.vel)
             ));
-        }
+        });
+//        for (int i = 0; i < ProjectilesBufferSize; ++i) {
+//            Projectile currentProjectile = current.projectiles[i];
+//            Projectile previousProjectile;
+//
+//            if (currentProjectile == null) {
+//                continue;
+//            }
+//
+//            previousProjectile = Utility.orDefault(previous.projectiles[i], currentProjectile);
+//
+//            temp.projectiles[i] = new Projectile(
+//                    currentProjectile.owner,
+//                    currentProjectile.strength,
+//                    Vector2.lerp(t, previousProjectile.pos, currentProjectile.pos),
+//                    Vector2.lerp(t, previousProjectile.vel, currentProjectile.vel)
+//            );
+//        }
         //endregion
 
         //region Scores
@@ -158,39 +173,24 @@ public class GameState implements Serializable {
 
         //fixme
         //region Projectiles
-        for (int i = 0, j = 0; i < target.projectiles.size(); ++i) {
-            Projectile targetProjectile = target.projectiles.get(i);
-            Projectile currentProjectile = null;
-
-            if (targetProjectile == null) {
-                ++j;
-                continue;
-            }
-
-            for (int attempts = 0; currentProjectile == null; ++attempts) {
-                currentProjectile = j < projectiles.size() ?
-                        projectiles.get(j) :
-                        targetProjectile;
-                if (attempts > 0) {
-                    projectiles.remove(j--);
-                }
-
-                ++j;
-            }
-//            do {
-//                projectiles.remove(0);
-//                --j;
+        //for (int i = 0; i < ProjectilesBufferSize; ++i) {
+        //    Projectile targetProjectile = target.projectiles[i];
+        //    Projectile currentProjectile = null;
 //
-//                currentProjectile = j < projectiles.size() ?
-//                        projectiles.get(j) :
-//                        targetProjectile;
-//                ++j;
-//            } while (currentProjectile == null);
-
-            currentProjectile.pos.lerp(t, targetProjectile.pos);
-            currentProjectile.vel.lerp(t, targetProjectile.vel);
-            projectiles.set(j, currentProjectile);
-        }
+        //    if (targetProjectile == null) {
+        //        continue;
+        //    }
+//
+        //    currentProjectile = projectiles[i];
+//
+        //    if (currentProjectile == null) {
+        //        projectiles[i] = targetProjectile;
+        //    } else {
+        //        currentProjectile.pos.lerp(t, targetProjectile.pos);
+        //        currentProjectile.vel.lerp(t, targetProjectile.vel);
+        //    }
+        //}
+        Debug.logWarning("TODO");
 //        for (int i = 0, j = 0; i < target.projectiles.size(); ++i) {
 //            Projectile targetProjectile = target.projectiles.get(i);
 //            Projectile currentProjectile;

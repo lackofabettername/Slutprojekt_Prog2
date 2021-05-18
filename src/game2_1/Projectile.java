@@ -6,8 +6,11 @@ import utility.Vector2;
 import processing.core.PGraphics;
 
 import java.io.Serializable;
+import java.util.UUID;
 
 public class Projectile implements Serializable {
+    public final UUID id;
+
     public static final float r = 5;
 
     public final float strength;
@@ -21,6 +24,7 @@ public class Projectile implements Serializable {
         this.strength = strength;
         this.pos = pos;
         this.vel = vel;
+        id = UUID.randomUUID();
     }
 
     boolean checkHit(Player player) {
@@ -46,5 +50,10 @@ public class Projectile implements Serializable {
             g.ellipse(pos.x, pos.y, r * 2, r * 2);
 
         g.pop();
+    }
+
+    @Override
+    public String toString() {
+        return id.toString().substring(0, 4) + " " + (delete ? "dead" : "alive");
     }
 }
