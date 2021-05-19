@@ -1,5 +1,7 @@
-package game2_1;
+package game2_1.serverSide;
 
+import game2_1.Game;
+import game2_1.GameState;
 import game2_1.events.InputEvent;
 import game2_1.events.KeyEvent;
 import game2_1.events.KeyEventType;
@@ -19,7 +21,7 @@ public class GameLogic {
     public final int ups;
     Server server;
 
-    GameLogic(Game parent, Server server, int ups) {
+    public GameLogic(Game parent, Server server, int ups) {
         this.parent = parent;
         this.server = server;
         this.ups = ups;
@@ -107,16 +109,16 @@ public class GameLogic {
                 iterator.set(null);
         }
 
-        gameState.players.forEach((id, player) -> {
-            player.update(deltaTime, parent.window.Bounds);
-            player.checkIfHit(gameState.projectiles);
+        gameState.players.forEach((id, playerLogic) -> {
+            playerLogic.update(deltaTime, parent.window.Bounds);
+            playerLogic.checkIfHit(gameState.projectiles);
         });
     }
 
     public void onClientJoin(byte id) {
         synchronized (gameState) {
-            Player player = new Player(id, gameState);
-            gameState.players.put(id, player);
+            PlayerLogic playerLogic = new PlayerLogic(id, gameState);
+            gameState.players.put(id, playerLogic);
         }
     }
 }

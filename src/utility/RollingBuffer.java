@@ -73,8 +73,9 @@ public class RollingBuffer<T> extends AbstractList<T> implements Serializable {
     }
     @Override
     public <T1> T1[] toArray(T1[] a) {
-        System.arraycopy(array, pointer, a, 0, Math.min(array.length - pointer, a.length));
-        System.arraycopy(array, 0, a, array.length - pointer, Math.min(pointer, a.length));
+        //System.arraycopy(array, pointer, a, 0, Math.min(array.length - pointer, a.length));
+        //System.arraycopy(array, 0, a, array.length - pointer, Math.min(pointer, a.length));
+        System.arraycopy(array, 0, a, 0, array.length);
         return a;
     }
 

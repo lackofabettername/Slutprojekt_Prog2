@@ -1,4 +1,4 @@
-package game2_1;
+package game2_1.serverSide;
 
 import utility.Bounds2;
 import utility.Vector2;
@@ -15,30 +15,36 @@ public class Projectile implements Serializable {
 
     public final float strength;
 
-    Vector2 pos, vel;
-    boolean delete;
-    byte owner;
+    public Vector2 pos, vel;
+    public boolean delete; //todo: transient?
+    public byte owner;
 
-    Projectile(byte owner, float strength, Vector2 pos, Vector2 vel) {
+    private static int teasmdopsa = 0;
+
+    public Projectile(byte owner, float strength, Vector2 pos, Vector2 vel, UUID id) {
         this.owner = owner;
         this.strength = strength;
         this.pos = pos;
         this.vel = vel;
-        id = UUID.randomUUID();
+        this.id = id;
     }
 
-    boolean checkHit(Player player) {
-        return Vector2.sub(player.pos, pos).magnitudeSqr() < (Player.r + r) * (Player.r + r);
+    public Projectile(byte owner, float strength, Vector2 pos, Vector2 vel) {
+        this(owner, strength, pos, vel, new UUID(0, teasmdopsa++));
     }
 
-    void update(Bounds2 bounds) {
+    public boolean checkHit(PlayerLogic playerLogic) {
+        return Vector2.sub(playerLogic.pos, pos).magnitudeSqr() < (PlayerLogic.r + r) * (PlayerLogic.r + r);
+    }
+
+    public void update(Bounds2 bounds) {
         pos.add(vel);
 
         if (!bounds.inBounds(pos))
             delete = true;
     }
 
-    void show(PGraphics g) {
+    public void render(PGraphics g) {
         g.push();
 
         g.stroke(255, 0, 0);
@@ -54,6 +60,6 @@ public class Projectile implements Serializable {
 
     @Override
     public String toString() {
-        return id.toString().substring(0, 4) + " " + (delete ? "dead" : "alive");
+        return id.toString().substring(32, 36) + " " + (delete ? "dead" : "alive");
     }
 }

@@ -1,5 +1,8 @@
-package game2_1;
+package game2_1.clientSide;
 
+import game2_1.Application;
+import game2_1.GameState;
+import game2_1.WindowLogic;
 import game2_1.events.KeyEvent;
 import game2_1.events.MouseEvent;
 import game2_1.internet.Client;
@@ -7,40 +10,42 @@ import game2_1.internet.ClientInfo;
 import game2_1.internet.NetPacket;
 import game2_1.music.BeatHandler;
 import game2_1.music.MusicPlayer;
+
 import processing.core.PGraphics;
+
 import utility.Debug;
 
+import java.util.Objects;
 import java.util.Queue;
 
 public class RenderLogic implements WindowLogic {
     private GameState previousGameState;
     private GameState currentGameState;
+
     private GameState clientGameState;
-    int serverUPS;
-    long gameStateTimeStamp;
 
-    int frameCount;
+    private int serverUPS;
+    private long gameStateTimeStamp;
 
-    Client client;
+    private int frameCount;
 
-    Application parent;
+    public Client client;
 
-    RenderLogic(Application parent) {
+    private final Application parent;
+
+    public RenderLogic(Application parent) {
         this.parent = parent;
         previousGameState = new GameState();
         currentGameState = new GameState();
         clientGameState = new GameState();
     }
 
-    void handleNetPackets() {
+    public void handleNetPackets() {
         if (client.getReceiveQueue().size() > 0) {
             Queue<NetPacket> queue = client.getAndClearReceiveQueue();
             for (NetPacket packet : queue) {
                 switch (packet.type()) {
                     case GameState -> {
-                        //clientGameState = previousGameState = currentGameState = (GameState) packet.object();
-                        //gameStateTimeStamp = packet.timeStamp();
-
                         previousGameState = currentGameState;
                         currentGameState = (GameState) packet.object();
                         gameStateTimeStamp = packet.timeStamp();
@@ -53,7 +58,7 @@ public class RenderLogic implements WindowLogic {
                     case ClientInput -> throw new UnsupportedOperationException("This should not happen");
                     case Information -> {
                         ClientInfo info = (ClientInfo) packet.object();
-                        Debug.log(info/*.toString().replace("{", "{\n").replace("}", "\n}")*/);
+                        Debug.log(info);
                         client.id = info.clientId();
                         serverUPS = info.serverUPS();
 
@@ -61,17 +66,8 @@ public class RenderLogic implements WindowLogic {
 
                         clientGameState.music = new MusicPlayer(clientGameState.songPath + ".wav", 1);
                         clientGameState.beats = BeatHandler.load(clientGameState.songPath + ".txt");
-
-                        //clientGameState = currentGameState = info.gameState();
-
-
-                        //if (clientGameState.music instanceof DummyMusicPlayer dummy) {
-                        //    clientGameState.music = new MusicPlayer(dummy.audioFile, dummy.playbackRate);
-                        //    Debug.log("bad");
-                        //}
-                        //previousGameState = currentGameState;
-//
-                        //gameStateTimeStamp = packet.timeStamp();
+                        for (byte key : clientGameState.players.keySet())
+                            clientGameState.players.compute(key, (id, player) -> new Player(Objects.requireNonNull(player)));
                     }
                     case ServerCommand -> {
                         String command = (String) packet.object();
@@ -115,37 +111,37 @@ public class RenderLogic implements WindowLogic {
                 parent.getFrameRate(),
                 t,
                 serverGameState.frameCount,
-                Debug.collectionCompare(currentGameState.projectiles, previousGameState.projectiles)
-                ), g.width / 2f, g.height / 2f);
+                Debug.collectionCompare(clientGameState.projectiles, serverGameState.projectiles)
+        ), g.width / 2f, g.height / 2f);
         //endregion
 
 
-        clientGameState = GameState.lerp(0.8f, clientGameState, serverGameState);
+        clientGameState.lerp(1.f, serverGameState); //fixme
         //clientGameState.lerp(0.8f, serverGameState);
         //clientGameState = serverGameState;
 
         //region Show
-        clientGameState.players.forEach((id, player) -> player.render(g));
+        clientGameState.players.forEach((id, player) -> ((Player) player).render(g));
         clientGameState.projectiles.forEach(projectile -> {
-            if (projectile != null) projectile.show(g);
+            if (projectile != null) projectile.render(g);
         });
 
         g.push();
-        clientGameState.beats.forEach((type, queue) -> {
-            long time = clientGameState.music.getMicrosecondPosition() / 1000;
-            g.stroke(1);
-            for (BeatHandler.Beat beat : queue) {
-                float x = beat.timeStamp() - time;
-
-                if (x < 0) continue;
-
-                x /= 1000f;
-                x *= 250;//pixels per second
-
-                g.line(g.width / 2f + x, g.height - 12, g.width / 2f + x, g.height - 2);
-                g.line(g.width / 2f - x, g.height - 12, g.width / 2f - x, g.height - 2);
-            }
-        });
+////        clientGameState.beats.forEach((type, queue) -> {
+////            long time = clientGameState.music.getMicrosecondPosition() / 1000;
+////            g.stroke(1);
+////            for (BeatHandler.Beat beat : queue) {
+////                float x = beat.timeStamp() - time;
+////
+////                if (x < 0) continue;
+////
+////                x /= 1000f;
+////                x *= 250;//pixels per second
+////
+////                g.line(g.width / 2f + x, g.height - 12, g.width / 2f + x, g.height - 2);
+////                g.line(g.width / 2f - x, g.height - 12, g.width / 2f - x, g.height - 2);
+////            }
+////        });
         g.pop();
 
         final StringBuilder scoreText = new StringBuilder();

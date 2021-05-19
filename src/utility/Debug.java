@@ -202,6 +202,16 @@ public class Debug {
     }
 
 
+    public static void logPush(String text) {
+        log(text);
+        offsetOutput(1);
+    }
+    public static void logPop(String text) {
+        offsetOutput(-1);
+        log(text);
+    }
+
+
     public static <T> T log(T object) {
         log(object != null ? object.toString() : "null", true);
         return object;
@@ -328,6 +338,45 @@ public class Debug {
     }
     public static <T extends Collection<?>> String collectionCompare(T a, T b) {
         return arrayCompare(a.toArray(), b.toArray());
+    }
+    public static <T extends Collection<Collection<?>>> String collectionCompare(T... collections) {//fixme
+        int printSize = 3;
+        int length = 0;
+
+        for (Collection<?> collection : collections) {
+            for (Object obj : collection) {
+                printSize = Math.max(printSize, obj.toString().length());
+            }
+            length = Math.max(length, collection.size());
+        }
+
+
+        StringBuilder output = new StringBuilder();
+
+        String indexPadding = "%" + ((int) Math.log10(length) + 1) + "d";
+        String objectPadding = "%" + printSize + "s";
+        for (int i = 0; i < length; ++i) {
+            output.append(String.format(indexPadding, +i)).append(" |");
+
+            for (int j = 0; j < collections.length; j++) {
+                Object[] array = collections[i].toArray();
+
+                String obj;
+                if (i < array.length)
+                    obj = array[i].toString();
+                else
+                    obj = "-".repeat(printSize - 1);
+
+
+                output.append(String.format(objectPadding, obj));
+                if (j < collections.length - 1)
+                    output.append(" ");
+            }
+
+            output.append("\n");
+        }
+
+        return output.toString();
     }
     //fixme: this vararg can cause heap pollution     https://www.geeksforgeeks.org/what-is-heap-pollution-in-java-and-how-to-resolve-it/
     public static <T> String arrayCompare(T[]... arrays) {

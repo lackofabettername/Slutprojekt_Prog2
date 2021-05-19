@@ -1,4 +1,4 @@
-package game2_1;
+package game2_1.clientSide;
 
 import processing.core.PGraphics;
 import utility.Color;
@@ -9,9 +9,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 public class ParticleSystem {
-    Vector2 pos;
-    Color color;
-    ArrayList<Particle> particles;
+    public Vector2 pos;
+    public Color color;
+    public ArrayList<Particle> particles;
 
     public ParticleSystem(Vector2 pos, Color color) {
         this.pos = pos;

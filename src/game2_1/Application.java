@@ -19,7 +19,7 @@ public class Application {
 
     WindowLogic currentLogic;
 
-    Application(int width, int height) {
+    public Application(int width, int height) {
         Bounds = new Bounds2(0, 0, width, height);
         WindowW = width;
         WindowH = height;
@@ -50,12 +50,12 @@ public class Application {
 //        //        textAlign(LEFT, TOP);
     }
 
-    void setLogic(WindowLogic logic) {
+    public void setLogic(WindowLogic logic) {
         currentLogic = logic;
     }
 
 
-    float getFrameRate() {
+    public float getFrameRate() {
         return window.frameRate;
     }
 

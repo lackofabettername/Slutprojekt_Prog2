@@ -2,6 +2,8 @@ package game2_1;
 
 import game2_1.music.BeatHandler;
 import game2_1.music.MusicPlayer;
+import game2_1.serverSide.PlayerLogic;
+import game2_1.serverSide.Projectile;
 import utility.*;
 
 import java.io.IOException;
@@ -17,15 +19,15 @@ public class GameState implements Serializable {
     public String songPath;
 
     public float frameCount;
-    public HashMap<Byte, Player> players;
+    public HashMap<Byte, PlayerLogic> players;
 
-    public static final int ProjectilesBufferSize = 4;
+    public static final int ProjectilesBufferSize = 6;
     public RollingBuffer<Projectile> projectiles;
 
     public HashMap<Byte, Integer> scores;
 
     //region Constructors
-    GameState(BeatHandler beats, String songPath, float frameCount, HashMap<Byte, Player> players, RollingBuffer<Projectile> projectiles, HashMap<Byte, Integer> scores) {
+    public GameState(BeatHandler beats, String songPath, float frameCount, HashMap<Byte, PlayerLogic> players, RollingBuffer<Projectile> projectiles, HashMap<Byte, Integer> scores) {
         this.beats = beats;
         this.songPath = songPath;
         this.frameCount = frameCount;
@@ -33,10 +35,10 @@ public class GameState implements Serializable {
         this.projectiles = projectiles;
         this.scores = scores;
     }
-    GameState(String songPath) {
-        this(BeatHandler.load(songPath), songPath, -1, new HashMap<>(), new RollingBuffer<>(ProjectilesBufferSize), new HashMap<>());
+    public GameState(String songPath) {
+        this(BeatHandler.load(songPath), songPath, 0, new HashMap<>(), new RollingBuffer<>(ProjectilesBufferSize), new HashMap<>());
     }
-    GameState() {
+    public GameState() {
         this(null, null, -1, new HashMap<>(), new RollingBuffer<>(ProjectilesBufferSize), new HashMap<>());
     }
     //endregion
@@ -73,25 +75,24 @@ public class GameState implements Serializable {
         //endregion
 
         //region Players
-        current.players.forEach((id, currentPlayer) -> {
-            Player previousPlayer = previous.players.getOrDefault(id, currentPlayer);
-            temp.players.put(id, new Player(
+        current.players.forEach((id, currentPlayerLogic) -> {
+            PlayerLogic previousPlayerLogic = previous.players.getOrDefault(id, currentPlayerLogic);
+            temp.players.put(id, new PlayerLogic(
                     id,
                     temp,
-                    Vector2.lerp(t, previousPlayer.pos, currentPlayer.pos).round(),
-                    Vector2.lerp(t, previousPlayer.vel, currentPlayer.vel),
-                    Color.lerp(t, previousPlayer.col, currentPlayer.col),
-                    null,
-                    Vector2.lerp(t, previousPlayer.cursor, currentPlayer.cursor)
+                    Vector2.lerp(t, previousPlayerLogic.pos, currentPlayerLogic.pos).round(),
+                    Vector2.lerp(t, previousPlayerLogic.vel, currentPlayerLogic.vel),
+                    Vector2.lerp(t, previousPlayerLogic.cursor, currentPlayerLogic.cursor)
             ));
-            temp.players.get(id).createParticleSystem(previousPlayer.particles);
         });
         //endregion
 
-        //fixme
         //region Projectiles
-        temp.projectiles.setPointer(current.projectiles.getPointer());
-        previous.projectiles.setPointer(current.projectiles.getPointer());
+        //temp.projectiles.setPointer(current.projectiles.getPointer());
+        temp.projectiles.setPointer(0);
+        //previous.projectiles.setPointer(current.projectiles.getPointer());
+        previous.projectiles.setPointer(0);
+        current.projectiles.setPointer(0);
         Utility.forEach(current.projectiles, previous.projectiles, (currentProjectile, previousProjectile) -> {
             if (currentProjectile == null) {
                 return;
@@ -107,7 +108,8 @@ public class GameState implements Serializable {
                     currentProjectile.owner,
                     currentProjectile.strength,
                     Vector2.lerp(t, previousProjectile.pos, currentProjectile.pos),
-                    Vector2.lerp(t, previousProjectile.vel, currentProjectile.vel)
+                    Vector2.lerp(t, previousProjectile.vel, currentProjectile.vel),
+                    previousProjectile.id
             ));
         });
 //        for (int i = 0; i < ProjectilesBufferSize; ++i) {
@@ -149,76 +151,66 @@ public class GameState implements Serializable {
         //region Players
         target.players.forEach((id, targetPlayer) -> {
             if (players.containsKey(id)) {
-                Player currentPlayer = players.get(id);
+                PlayerLogic currentPlayer = players.get(id);
+
                 currentPlayer.pos.lerp(t, targetPlayer.pos);
                 currentPlayer.vel.lerp(t, targetPlayer.vel);
-                currentPlayer.col.lerp(t, targetPlayer.col);
                 currentPlayer.cursor.lerp(t, targetPlayer.cursor);
             } else {
                 players.put(id, targetPlayer);
+                Debug.logWarning("Added new PlayerLogic");
             }
-            //Player currentPlayer = players.getOrDefault(id, targetPlayer);
-            //players.put(id, new Player(
-            //        id,
-            //        this,
-            //        Vector2.lerp(t, currentPlayer.pos, targetPlayer.pos).round(),
-            //        Vector2.lerp(t, currentPlayer.vel, targetPlayer.vel),
-            //        Color.lerp(t, currentPlayer.color, targetPlayer.color),
-            //        null,
-            //        Vector2.lerp(t, currentPlayer.cursor, targetPlayer.cursor)
-            //));
-            ////temp.players.get(id).createParticleSystem(currentPlayer.particles);
         });
         //endregion
 
         //fixme
         //region Projectiles
-        //for (int i = 0; i < ProjectilesBufferSize; ++i) {
-        //    Projectile targetProjectile = target.projectiles[i];
-        //    Projectile currentProjectile = null;
-//
-        //    if (targetProjectile == null) {
-        //        continue;
-        //    }
-//
-        //    currentProjectile = projectiles[i];
-//
-        //    if (currentProjectile == null) {
-        //        projectiles[i] = targetProjectile;
-        //    } else {
-        //        currentProjectile.pos.lerp(t, targetProjectile.pos);
-        //        currentProjectile.vel.lerp(t, targetProjectile.vel);
-        //    }
-        //}
-        Debug.logWarning("TODO");
-//        for (int i = 0, j = 0; i < target.projectiles.size(); ++i) {
-//            Projectile targetProjectile = target.projectiles.get(i);
-//            Projectile currentProjectile;
-//
-//            if (targetProjectile == null) {
-//                ++j;
-//                continue;
-//            }
-//
-//            do {
-//                currentProjectile = j < projectiles.size() ? projectiles.get(j) : targetProjectile;
-//                ++j;
-//            } while (currentProjectile == null);
-//
-//            projectiles.add(new Projectile(
-//                    targetProjectile.owner,
-//                    targetProjectile.strength,
-//                    Vector2.lerp(t, currentProjectile.pos, targetProjectile.pos),
-//                    Vector2.lerp(t, currentProjectile.vel, targetProjectile.vel)
-//            ));
-//        }
+//        //for (int i = 0; i < ProjectilesBufferSize; ++i) {
+//        //    Projectile targetProjectile = target.projectiles[i];
+//        //    Projectile currentProjectile = null;
+////
+//        //    if (targetProjectile == null) {
+//        //        continue;
+//        //    }
+////
+//        //    currentProjectile = projectiles[i];
+////
+//        //    if (currentProjectile == null) {
+//        //        projectiles[i] = targetProjectile;
+//        //    } else {
+//        //        currentProjectile.pos.lerp(t, targetProjectile.pos);
+//        //        currentProjectile.vel.lerp(t, targetProjectile.vel);
+//        //    }
+//        //}
+//        Debug.logWarning("TODO");
+////        for (int i = 0, j = 0; i < target.projectiles.size(); ++i) {
+////            Projectile targetProjectile = target.projectiles.get(i);
+////            Projectile currentProjectile;
+////
+////            if (targetProjectile == null) {
+////                ++j;
+////                continue;
+////            }
+////
+////            do {
+////                currentProjectile = j < projectiles.size() ? projectiles.get(j) : targetProjectile;
+////                ++j;
+////            } while (currentProjectile == null);
+////
+////            projectiles.add(new Projectile(
+////                    targetProjectile.owner,
+////                    targetProjectile.strength,
+////                    Vector2.lerp(t, currentProjectile.pos, targetProjectile.pos),
+////                    Vector2.lerp(t, currentProjectile.vel, targetProjectile.vel)
+////            ));
+////        }
         //endregion
 
         //region Scores
-        target.scores.forEach((id, currentScore) -> {
-            int previousScore = scores.getOrDefault(id, currentScore);
+        target.scores.forEach((id, targetScore) -> {
+            int currentScore = scores.getOrDefault(id, targetScore);
             scores.put(id,
-                    MathF.lerp(t, previousScore, currentScore)
+                    MathF.lerp(t, currentScore, targetScore)
             );
         });
         //endregion

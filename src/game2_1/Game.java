@@ -1,9 +1,11 @@
 package game2_1;
 
+import game2_1.clientSide.RenderLogic;
 import game2_1.internet.Client;
 import game2_1.internet.NetPacket;
 import game2_1.internet.Server;
 import game2_1.music.BeatMapper;
+import game2_1.serverSide.GameLogic;
 import utility.Debug;
 import utility.style.Foreground;
 
@@ -30,16 +32,16 @@ public class Game {
     public Game() {
         Locale.setDefault(Locale.ENGLISH);
 
-        Debug.log("Starting window");
+        Debug.logPush("Starting window...");
         window = new Application(900, 600);
         window.init();
-        Debug.log("Window started");
+        Debug.logPop("Window started");
 
-        Debug.log("Starting UI");
+        Debug.logPush("Starting UI...");
         clientSide = new RenderLogic(window);
         menu = new MenuLogic(this);
         window.setLogic(menu);
-        Debug.log("UI started");
+        Debug.logPop("UI started");
 
         songMapper = new BeatMapper(window);
 

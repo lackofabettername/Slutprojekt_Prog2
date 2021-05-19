@@ -1,5 +1,7 @@
-package game2_1;
+package game2_1.serverSide;
 
+import game2_1.GameState;
+import game2_1.clientSide.ParticleSystem;
 import game2_1.events.InputEvent;
 import game2_1.events.KeyEvent;
 import game2_1.events.MouseEvent;
@@ -13,41 +15,35 @@ import java.util.*;
 /**
  * The player. The users directly control instances of this class.
  */
-public class Player implements Serializable {
-    private final transient GameState parent;
-    private final transient byte id;
+public class PlayerLogic implements Serializable {
+    public final transient GameState parent;
+    public final transient byte id;
 
     public static final float r = 20;
-    Vector2 pos, vel;
-    Color col;
-    transient ParticleSystem particles;
-
-    Vector2 cursor;
+    public Vector2 pos, vel;
+    public Vector2 cursor;
 
     public final transient HashMap<Character, Movement> keyBinds;
     private final EnumSet<Movement> movement;
 
     //region Constructors
-    Player(byte id, GameState parent) {
+    public PlayerLogic(byte id, GameState parent) {//todo: remove this?
         this(
                 id,
                 parent,
                 new Vector2(40),
                 new Vector2(0, 0),
-                new Color(ColorMode.HSVA, MathF.GoldenRatio * id % 1, 1, 1, 1),
-                null,
                 new Vector2()
         );
     }
-    Player(byte id, GameState parent, Vector2 pos, Vector2 vel, Color color, ParticleSystem particleSystem, Vector2 cursor) {
+    public PlayerLogic(byte id, GameState parent, Vector2 pos, Vector2 vel, Vector2 cursor) {
         this.id = id;
         this.parent = parent;
         this.pos = pos;
         this.vel = vel;
-        this.col = color;
-        this.particles = particleSystem;
         this.cursor = cursor;
 
+        //todo: read from file?
         keyBinds = new HashMap<>(Map.of(
                 'w', Movement.Up,
                 'a', Movement.Left,
@@ -56,24 +52,9 @@ public class Player implements Serializable {
         ));
         movement = EnumSet.noneOf(Movement.class);
     }
-
-    public void createParticleSystem() {
-        if (particles != null)
-            return;
-
-        particles = new ParticleSystem(pos, col);
-    }
-    public void createParticleSystem(ParticleSystem ps) {
-        if (particles != null || ps == null)
-            return;
-
-        particles = ps;
-        particles.pos = pos;
-        particles.color = col;
-    }
     //endregion
 
-    void update(float deltaTime, Bounds2 bounds) {
+    public void update(float deltaTime, Bounds2 bounds) {
         Vector2 movementForce = new Vector2();
         for (Movement movement : movement)
             movementForce.add(movement.force);
@@ -101,7 +82,7 @@ public class Player implements Serializable {
         pos.y = MathF.bounce(pos.y, bounds.y, bounds.y + bounds.h);
     }
 
-    void checkIfHit(Collection<Projectile> projectiles) {
+    public void checkIfHit(Collection<Projectile> projectiles) {
         //TODO: more efficient search
 
         if (projectiles instanceof List temp) {
@@ -127,7 +108,7 @@ public class Player implements Serializable {
         }
     }
 
-    void handleEvent(InputEvent event) {
+    public void handleEvent(InputEvent event) {
         if (event instanceof KeyEvent keyEvent) {
 
             switch (keyEvent.Type) {
@@ -184,27 +165,6 @@ public class Player implements Serializable {
         }
     }
 
-    void render(PGraphics g) {
-        g.push();
-
-        if (particles == null)
-            createParticleSystem();
-        particles.update();
-        particles.render(g);
-
-        g.stroke(col.getRed(), col.getGreen(), col.getBlue());
-        g.strokeWeight(3);
-        g.noFill();
-
-        g.ellipse(pos.x, pos.y, r * 2, r * 2);
-
-        g.strokeWeight(1);
-        g.line(cursor.x - 10, cursor.y, cursor.x + 10, cursor.y);
-        g.line(cursor.x, cursor.y - 10, cursor.x, cursor.y + 10);
-
-        g.pop();
-    }
-
     @Override
     public String toString() {
         return "Player{" +
@@ -213,7 +173,7 @@ public class Player implements Serializable {
                 '}';
     }
 
-    enum Movement {
+    private enum Movement {
         Up(0, -1),
         Down(0, 1),
         Left(-1, 0),
