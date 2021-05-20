@@ -7,6 +7,7 @@ import utility.style.Font;
 import utility.style.Foreground;
 import utility.style.Style;
 
+import java.io.PrintWriter;
 import java.util.*;
 
 import static utility.Reversed.reversed;
@@ -18,6 +19,19 @@ public class Debug {
     private static volatile int _offset;
     private static volatile boolean _isStartOfLine;
     private static volatile HashMap<Thread, Style[]> threadDecoration = new HashMap<>();
+
+    public static PrintWriter logFile;
+
+    public static void flushLog() {
+        if (logFile != null)
+            logFile.flush();
+    }
+    public static void closeLog() {
+        if (logFile != null) {
+            flushLog();
+            logFile.close();
+        }
+    }
 
     public static void logAll(Object... message) {
         synchronized (_logLock) {
@@ -212,6 +226,9 @@ public class Debug {
     }
 
 
+    public static void log() {
+        log("", true);
+    }
     public static <T> T log(T object) {
         log(object != null ? object.toString() : "null", true);
         return object;
@@ -225,8 +242,10 @@ public class Debug {
     }
     public static String log(String text, boolean newLine) {
         synchronized (_logLock) {
-            if (_isStartOfLine)
+            if (_isStartOfLine) {
                 System.out.print("\t".repeat(_offset));
+                logFile.print("\t".repeat(_offset));
+            }
 
             if (!threadDecoration.isEmpty()) {
                 for (Style style : threadDecoration.getOrDefault(Thread.currentThread(), new Style[0])) {
@@ -235,6 +254,7 @@ public class Debug {
 
             }
             System.out.print(text + (newLine ? "\n" : ""));
+            logFile.print(text.replaceAll("\u001B\\[[0-9]*m", "") + (newLine ? "\n" : ""));
 
             _isStartOfLine = newLine;
         }

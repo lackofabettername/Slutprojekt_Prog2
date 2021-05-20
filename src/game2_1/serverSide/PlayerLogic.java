@@ -134,28 +134,27 @@ public class PlayerLogic implements Serializable {
                 case MouseButtonClicked -> {
                 }
                 case MouseButtonPressed -> {
+                    Projectile toAdd;
                     if (parent.music.playing) {
-                        parent.projectiles.add(
-                                new Projectile(
-                                        id,
-                                        parent.beats.getStrength(
-                                                (byte) 0,
-                                                parent.music.getMicrosecondPosition() / 1000
-                                        ),
-                                        pos.copy(),
-                                        Vector2.sub(cursor, pos).setMagnitude(15)
-                                )
+                        toAdd = new Projectile(
+                                id,
+                                parent.beats.getStrength(
+                                        (byte) 0,
+                                        parent.music.getMicrosecondPosition() / 1000
+                                ),
+                                pos.copy(),
+                                Vector2.sub(cursor, pos).setMagnitude(15)
                         );
                     } else {
-                        parent.projectiles.add(
-                                new Projectile(
-                                        id,
-                                        0,
-                                        pos.copy(),
-                                        Vector2.sub(cursor, pos).setMagnitude(15)
-                                )
+                        toAdd = new Projectile(
+                                id,
+                                0,
+                                pos.copy(),
+                                Vector2.sub(cursor, pos).setMagnitude(15)
                         );
                     }
+                    Debug.log("Added: " + toAdd);
+                    parent.projectiles.add(toAdd);
                 }
                 case MouseButtonReleased -> {
                 }

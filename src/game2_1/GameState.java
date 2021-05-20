@@ -1,13 +1,17 @@
 package game2_1;
 
+import game2_1.clientSide.Player;
 import game2_1.music.BeatHandler;
 import game2_1.music.MusicPlayer;
 import game2_1.serverSide.PlayerLogic;
 import game2_1.serverSide.Projectile;
 import utility.*;
+import utility.style.Font;
+import utility.style.Foreground;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -21,13 +25,12 @@ public class GameState implements Serializable {
     public float frameCount;
     public HashMap<Byte, PlayerLogic> players;
 
-    public static final int ProjectilesBufferSize = 6;
-    public RollingBuffer<Projectile> projectiles;
+    public ArrayList<Projectile> projectiles;
 
     public HashMap<Byte, Integer> scores;
 
     //region Constructors
-    public GameState(BeatHandler beats, String songPath, float frameCount, HashMap<Byte, PlayerLogic> players, RollingBuffer<Projectile> projectiles, HashMap<Byte, Integer> scores) {
+    public GameState(BeatHandler beats, String songPath, float frameCount, HashMap<Byte, PlayerLogic> players, ArrayList<Projectile> projectiles, HashMap<Byte, Integer> scores) {
         this.beats = beats;
         this.songPath = songPath;
         this.frameCount = frameCount;
@@ -36,10 +39,10 @@ public class GameState implements Serializable {
         this.scores = scores;
     }
     public GameState(String songPath) {
-        this(BeatHandler.load(songPath), songPath, 0, new HashMap<>(), new RollingBuffer<>(ProjectilesBufferSize), new HashMap<>());
+        this(BeatHandler.load(songPath), songPath, 0, new HashMap<>(), new ArrayList<>(), new HashMap<>());
     }
     public GameState() {
-        this(null, null, -1, new HashMap<>(), new RollingBuffer<>(ProjectilesBufferSize), new HashMap<>());
+        this(null, null, -1, new HashMap<>(), new ArrayList<>(), new HashMap<>());
     }
     //endregion
 
@@ -88,47 +91,26 @@ public class GameState implements Serializable {
         //endregion
 
         //region Projectiles
-        //temp.projectiles.setPointer(current.projectiles.getPointer());
-        temp.projectiles.setPointer(0);
-        //previous.projectiles.setPointer(current.projectiles.getPointer());
-        previous.projectiles.setPointer(0);
-        current.projectiles.setPointer(0);
-        Utility.forEach(current.projectiles, previous.projectiles, (currentProjectile, previousProjectile) -> {
+        for (int i = 0, j = 0; i < current.projectiles.size(); ++i) {
+            Projectile currentProjectile = current.projectiles.get(i);
+            Projectile previousProjectile;
+
             if (currentProjectile == null) {
-                return;
+                continue;
             }
 
-            if (previousProjectile == null)
-                previousProjectile = currentProjectile;
-            else if (!currentProjectile.id.equals(previousProjectile.id)) {
-                Debug.logWarning("bad" + System.currentTimeMillis() / 1E3);
-            }
+            do {
+                previousProjectile = i < previous.projectiles.size() ? previous.projectiles.get(i++) : currentProjectile;
+            } while (previousProjectile == null || previousProjectile.id < currentProjectile.id);
 
             temp.projectiles.add(new Projectile(
                     currentProjectile.owner,
                     currentProjectile.strength,
                     Vector2.lerp(t, previousProjectile.pos, currentProjectile.pos),
                     Vector2.lerp(t, previousProjectile.vel, currentProjectile.vel),
-                    previousProjectile.id
+                    currentProjectile.id
             ));
-        });
-//        for (int i = 0; i < ProjectilesBufferSize; ++i) {
-//            Projectile currentProjectile = current.projectiles[i];
-//            Projectile previousProjectile;
-//
-//            if (currentProjectile == null) {
-//                continue;
-//            }
-//
-//            previousProjectile = Utility.orDefault(previous.projectiles[i], currentProjectile);
-//
-//            temp.projectiles[i] = new Projectile(
-//                    currentProjectile.owner,
-//                    currentProjectile.strength,
-//                    Vector2.lerp(t, previousProjectile.pos, currentProjectile.pos),
-//                    Vector2.lerp(t, previousProjectile.vel, currentProjectile.vel)
-//            );
-//        }
+        }
         //endregion
 
         //region Scores
@@ -157,53 +139,56 @@ public class GameState implements Serializable {
                 currentPlayer.vel.lerp(t, targetPlayer.vel);
                 currentPlayer.cursor.lerp(t, targetPlayer.cursor);
             } else {
-                players.put(id, targetPlayer);
+                players.put(id, new Player(targetPlayer, id));
                 Debug.logWarning("Added new PlayerLogic");
             }
         });
         //endregion
 
-        //fixme
         //region Projectiles
-//        //for (int i = 0; i < ProjectilesBufferSize; ++i) {
-//        //    Projectile targetProjectile = target.projectiles[i];
-//        //    Projectile currentProjectile = null;
-////
-//        //    if (targetProjectile == null) {
-//        //        continue;
-//        //    }
-////
-//        //    currentProjectile = projectiles[i];
-////
-//        //    if (currentProjectile == null) {
-//        //        projectiles[i] = targetProjectile;
-//        //    } else {
-//        //        currentProjectile.pos.lerp(t, targetProjectile.pos);
-//        //        currentProjectile.vel.lerp(t, targetProjectile.vel);
-//        //    }
-//        //}
-//        Debug.logWarning("TODO");
-////        for (int i = 0, j = 0; i < target.projectiles.size(); ++i) {
-////            Projectile targetProjectile = target.projectiles.get(i);
-////            Projectile currentProjectile;
-////
-////            if (targetProjectile == null) {
-////                ++j;
-////                continue;
-////            }
-////
-////            do {
-////                currentProjectile = j < projectiles.size() ? projectiles.get(j) : targetProjectile;
-////                ++j;
-////            } while (currentProjectile == null);
-////
-////            projectiles.add(new Projectile(
-////                    targetProjectile.owner,
-////                    targetProjectile.strength,
-////                    Vector2.lerp(t, currentProjectile.pos, targetProjectile.pos),
-////                    Vector2.lerp(t, currentProjectile.vel, targetProjectile.vel)
-////            ));
-////        }
+        for (int i = 0, j = 0; i < target.projectiles.size(); ++i) {
+
+            Projectile targetProjectile = target.projectiles.get(i);
+            Projectile currentProjectile = null;
+
+            if (targetProjectile == null) {
+                continue;
+            }
+
+            if (j < projectiles.size()) {
+                while (j < projectiles.size()) {
+                    currentProjectile = projectiles.get(j++);
+
+                    if (currentProjectile == null || currentProjectile.id < targetProjectile.id) {
+                        projectiles.remove(--j);
+                    } else
+                        break;
+                }
+
+                if (currentProjectile.id < targetProjectile.id)
+                    currentProjectile = targetProjectile;
+
+                if (j <= projectiles.size()) {
+                    if (currentProjectile.id != targetProjectile.id){
+                        Debug.logWarning("Bad");
+                        Debug.logDecorated(currentProjectile + ", " + targetProjectile, Foreground.Blue);
+                    }
+                    projectiles.set(
+                            j - 1,
+                            new Projectile(
+                                    targetProjectile.owner,
+                                    targetProjectile.strength,
+                                    Vector2.lerp(t, currentProjectile.pos, targetProjectile.pos),
+                                    Vector2.lerp(t, currentProjectile.vel, targetProjectile.vel),
+                                    targetProjectile.id
+                            )
+                    );
+                }
+            } else {
+                projectiles.add(targetProjectile);
+                ++j;
+            }
+        }
         //endregion
 
         //region Scores

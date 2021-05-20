@@ -66,8 +66,8 @@ public class RenderLogic implements WindowLogic {
 
                         clientGameState.music = new MusicPlayer(clientGameState.songPath + ".wav", 1);
                         clientGameState.beats = BeatHandler.load(clientGameState.songPath + ".txt");
-                        for (byte key : clientGameState.players.keySet())
-                            clientGameState.players.compute(key, (id, player) -> new Player(Objects.requireNonNull(player)));
+                        for (byte id : clientGameState.players.keySet())
+                            clientGameState.players.compute(id, (ignored, player) -> new Player(Objects.requireNonNull(player), id));
                     }
                     case ServerCommand -> {
                         String command = (String) packet.object();
@@ -116,7 +116,11 @@ public class RenderLogic implements WindowLogic {
         //endregion
 
 
-        clientGameState.lerp(1.f, serverGameState); //fixme
+        clientGameState.lerp(0.8f, serverGameState); //fixme
+        if (clientGameState.projectiles.size() > 0 || serverGameState.projectiles.size() > 0) {
+            Debug.logListCompare(clientGameState.projectiles, serverGameState.projectiles);
+            Debug.log();
+        }
         //clientGameState.lerp(0.8f, serverGameState);
         //clientGameState = serverGameState;
 

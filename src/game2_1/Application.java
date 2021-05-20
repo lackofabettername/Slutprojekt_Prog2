@@ -3,6 +3,7 @@ package game2_1;
 import game2_1.events.*;
 import game2_1.internet.Client;
 import utility.Bounds2;
+import utility.Debug;
 
 import processing.core.PApplet;
 import processing.core.PGraphics;
@@ -73,6 +74,7 @@ public class Application {
         @Override
         public void settings() {
             size(WindowW, WindowH);
+            registerMethod("dispose", this);
         }
 
         @Override
@@ -90,6 +92,12 @@ public class Application {
                 background(0);
                 text("no Logic loaded\n" + frameCount, 0, 0, width, height);
             }
+        }
+
+
+        @Override
+        public void dispose() { // Called before PApplet closes, can be used to detect crashes.
+            Debug.closeLog();
         }
 
 

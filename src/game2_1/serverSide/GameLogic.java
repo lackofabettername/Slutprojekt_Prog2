@@ -9,6 +9,7 @@ import game2_1.internet.NetPacket;
 import game2_1.internet.NetPacketType;
 import game2_1.internet.Server;
 import game2_1.music.DummyMusicPlayer;
+import utility.Debug;
 
 import java.util.ListIterator;
 import java.util.Queue;
@@ -103,10 +104,12 @@ public class GameLogic {
                 continue;
             }
 
-            projectile.update(parent.window.Bounds);
+            if (projectile.delete) {
+                Debug.log("Removed: " + projectile);
+                iterator.remove();
+            }
 
-            if (projectile.delete)
-                iterator.set(null);
+            projectile.update(parent.window.Bounds);
         }
 
         gameState.players.forEach((id, playerLogic) -> {

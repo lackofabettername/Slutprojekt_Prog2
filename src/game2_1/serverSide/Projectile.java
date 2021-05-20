@@ -9,7 +9,7 @@ import java.io.Serializable;
 import java.util.UUID;
 
 public class Projectile implements Serializable {
-    public final UUID id;
+    public final short id;
 
     public static final float r = 5;
 
@@ -19,9 +19,9 @@ public class Projectile implements Serializable {
     public boolean delete; //todo: transient?
     public byte owner;
 
-    private static int teasmdopsa = 0;
+    private static short teasmdopsa = 0;
 
-    public Projectile(byte owner, float strength, Vector2 pos, Vector2 vel, UUID id) {
+    public Projectile(byte owner, float strength, Vector2 pos, Vector2 vel, short id) {
         this.owner = owner;
         this.strength = strength;
         this.pos = pos;
@@ -30,7 +30,7 @@ public class Projectile implements Serializable {
     }
 
     public Projectile(byte owner, float strength, Vector2 pos, Vector2 vel) {
-        this(owner, strength, pos, vel, new UUID(0, teasmdopsa++));
+        this(owner, strength, pos, vel, teasmdopsa++);
     }
 
     public boolean checkHit(PlayerLogic playerLogic) {
@@ -60,6 +60,20 @@ public class Projectile implements Serializable {
 
     @Override
     public String toString() {
-        return id.toString().substring(32, 36) + " " + (delete ? "dead" : "alive");
+        return id + " " + (delete ? "dead" : "alive");
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Projectile that = (Projectile) o;
+
+        return id == that.id;
+    }
+    @Override
+    public int hashCode() {
+        return id;
     }
 }

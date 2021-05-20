@@ -9,6 +9,10 @@ import game2_1.serverSide.GameLogic;
 import utility.Debug;
 import utility.style.Foreground;
 
+import java.io.BufferedOutputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
@@ -32,6 +36,12 @@ public class Game {
     public Game() {
         Locale.setDefault(Locale.ENGLISH);
 
+        try {
+            Debug.logFile = new PrintWriter(new BufferedOutputStream(new FileOutputStream("Output.log")));
+        } catch (FileNotFoundException e) {
+            Debug.logError(e);
+        }
+
         Debug.logPush("Starting window...");
         window = new Application(900, 600);
         window.init();
@@ -44,6 +54,8 @@ public class Game {
         Debug.logPop("UI started");
 
         songMapper = new BeatMapper(window);
+
+        Debug.logLine();
 
         while (true) {
             try {

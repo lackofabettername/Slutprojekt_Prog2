@@ -13,13 +13,13 @@ public class Player extends PlayerLogic {
     public Color col;
     public transient ParticleSystem particles;
 
-    public Player(PlayerLogic player) {
+    public Player(PlayerLogic player, byte id) {
         this(
-                player.id,
+                id,
                 player.parent,
                 player.pos,
                 player.vel,
-                new Color(ColorMode.HSVA, MathF.GoldenRatio * player.id % 1, 1, 1, 1),
+                new Color(ColorMode.HSVA, MathF.GoldenRatio * id % 1, 1, 1, 1),
                 null,
                 player.cursor
         );
