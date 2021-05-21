@@ -99,9 +99,9 @@ public class Debug {
     public static <T> void logArrayCompare(T[] a, T[] b) {
         int longest = 3;
         for (T obj : a)
-            longest = Math.max(longest, obj.toString().length());
+            longest = Math.max(longest, obj != null ? obj.toString().length() : 4);
         for (T obj : b)
-            longest = Math.max(longest, obj.toString().length());
+            longest = Math.max(longest, obj != null ? obj.toString().length() : 4);
 
 
         synchronized (_logLock) {
@@ -359,6 +359,7 @@ public class Debug {
     public static <T extends Collection<?>> String collectionCompare(T a, T b) {
         return arrayCompare(a.toArray(), b.toArray());
     }
+    @Deprecated
     public static <T extends Collection<Collection<?>>> String collectionCompare(T... collections) {//fixme
         int printSize = 3;
         int length = 0;

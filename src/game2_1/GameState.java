@@ -100,7 +100,7 @@ public class GameState implements Serializable {
             }
 
             do {
-                previousProjectile = i < previous.projectiles.size() ? previous.projectiles.get(i++) : currentProjectile;
+                previousProjectile = j < previous.projectiles.size() ? previous.projectiles.get(j++) : currentProjectile;
             } while (previousProjectile == null || previousProjectile.id < currentProjectile.id);
 
             temp.projectiles.add(new Projectile(
@@ -165,14 +165,17 @@ public class GameState implements Serializable {
                         break;
                 }
 
-                if (currentProjectile.id < targetProjectile.id)
-                    currentProjectile = targetProjectile;
+                //if (currentProjectile.id < targetProjectile.id)
+                //    currentProjectile = targetProjectile;
 
-                if (j <= projectiles.size()) {
-                    if (currentProjectile.id != targetProjectile.id){
-                        Debug.logWarning("Bad");
-                        Debug.logDecorated(currentProjectile + ", " + targetProjectile, Foreground.Blue);
-                    }
+                if (targetProjectile.id < currentProjectile.id) {
+                    //Debug.log("Inserted: " + targetProjectile + " at ", false);
+                    projectiles.add(Debug.log(j - 1), targetProjectile);
+                } else if (j <= projectiles.size()) {
+                    //if (currentProjectile.id != targetProjectile.id) {
+                    //    Debug.logWarning("Bad");
+                    //    Debug.logDecorated(currentProjectile + ", " + targetProjectile, Foreground.Blue);
+                    //}
                     projectiles.set(
                             j - 1,
                             new Projectile(

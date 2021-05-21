@@ -153,7 +153,7 @@ public class PlayerLogic implements Serializable {
                                 Vector2.sub(cursor, pos).setMagnitude(15)
                         );
                     }
-                    Debug.log("Added: " + toAdd);
+                    //Debug.log("Added: " + toAdd);
                     parent.projectiles.add(toAdd);
                 }
                 case MouseButtonReleased -> {

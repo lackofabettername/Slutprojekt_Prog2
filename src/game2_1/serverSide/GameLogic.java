@@ -105,7 +105,7 @@ public class GameLogic {
             }
 
             if (projectile.delete) {
-                Debug.log("Removed: " + projectile);
+                //Debug.log("Removed: " + projectile);
                 iterator.remove();
             }
 

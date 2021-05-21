@@ -120,6 +120,12 @@ public class Game {
     }
 
     public static void main(String[] args) throws UnknownHostException {
-        new Game();
+        try {
+            new Game();
+        } catch (Throwable e) {
+            Debug.closeLog();
+
+            throw e;
+        }
     }
 }

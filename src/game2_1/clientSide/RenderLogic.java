@@ -97,6 +97,10 @@ public class RenderLogic implements WindowLogic {
         float t = (System.currentTimeMillis() - gameStateTimeStamp) / (1000f / serverUPS);
         //t = 1;
         GameState serverGameState = GameState.lerp(t, previousGameState, currentGameState);
+//        if (currentGameState.projectiles.size() > 0 || serverGameState.projectiles.size() > 0) {
+//            Debug.logListCompare(currentGameState.projectiles, serverGameState.projectiles);
+//            Debug.log();
+//        }
         //serverGameState = currentGameState;
 
         //region Debug
@@ -117,10 +121,10 @@ public class RenderLogic implements WindowLogic {
 
 
         clientGameState.lerp(0.8f, serverGameState); //fixme
-        if (clientGameState.projectiles.size() > 0 || serverGameState.projectiles.size() > 0) {
-            Debug.logListCompare(clientGameState.projectiles, serverGameState.projectiles);
-            Debug.log();
-        }
+//        if (clientGameState.projectiles.size() > 0 || serverGameState.projectiles.size() > 0) {
+//            Debug.logListCompare(clientGameState.projectiles, serverGameState.projectiles);
+//            Debug.log();
+//        }
         //clientGameState.lerp(0.8f, serverGameState);
         //clientGameState = serverGameState;
 
