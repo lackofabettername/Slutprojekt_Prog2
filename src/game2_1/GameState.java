@@ -146,7 +146,8 @@ public class GameState implements Serializable {
         //endregion
 
         //region Projectiles
-        for (int i = 0, j = 0; i < target.projectiles.size(); ++i) {
+        int i = 0, j = 0;
+        for (; i < target.projectiles.size(); ++i) {
 
             Projectile targetProjectile = target.projectiles.get(i);
             Projectile currentProjectile = null;
@@ -190,6 +191,13 @@ public class GameState implements Serializable {
             } else {
                 projectiles.add(targetProjectile);
                 ++j;
+            }
+        }
+        for (; j < projectiles.size(); ++j) {
+            Projectile currentProjectile = projectiles.get(j);
+
+            if (i == 0 || currentProjectile.id > target.projectiles.get(i - 1).id) {
+                projectiles.remove(j--);
             }
         }
         //endregion

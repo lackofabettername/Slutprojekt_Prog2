@@ -41,12 +41,14 @@ public class GameLogic {
     }
 
     public void mainLoop() {
-        double minDeltaTime = 1000. / ups;
+        double minDeltaTime = 1000. / ups; //milliseconds
 
         double acumulator = 0;
         long lastFrame = System.currentTimeMillis();
         long deltaTime;
+
         while (server != null && server.getThread().isAlive()) {
+
             long frame = System.currentTimeMillis();
             deltaTime = frame - lastFrame;
 
@@ -58,7 +60,7 @@ public class GameLogic {
             acumulator += deltaTime;
 
             while (acumulator > minDeltaTime) {
-                update((float) minDeltaTime / 1000);
+                update((float) minDeltaTime / 1000); //seconds
                 acumulator -= minDeltaTime;
             }
 

@@ -19,7 +19,7 @@ import java.net.UnknownHostException;
 import java.util.Locale;
 
 public class Game {
-    public final int ServerUPS = 2;
+    public final int ServerUPS = 30;
 
     public volatile Server server;
     public volatile Client client;

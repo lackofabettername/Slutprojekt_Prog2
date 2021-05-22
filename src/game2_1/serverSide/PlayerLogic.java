@@ -58,16 +58,16 @@ public class PlayerLogic implements Serializable {
         Vector2 movementForce = new Vector2();
         for (Movement movement : movement)
             movementForce.add(movement.force);
+
         movementForce.normalize();
-        if (movementForce.dot(Vector2.normalize(vel)) < 0)
-            movementForce.mult(2);
 
-        movementForce.mult(50f * deltaTime);
+        if (movementForce.dot(Vector2.normalize(vel)) < -0.5)
+            movementForce.mult(3);
+        movementForce.mult(2f);
 
-        //vel.add(Vector2.mult(Vector2.sub(pos, 450, 300), -0.001f));
-        //vel.mult(1 - 0.8f * deltaTime);
-        vel.mult(1 - 0.99999f * deltaTime);
-
+        if (movementForce.magnitudeSqr() == 0)
+            vel.mult(0.8f);
+        vel.mult(0.94f);
         vel.add(movementForce);
 
         pos.add(vel);
