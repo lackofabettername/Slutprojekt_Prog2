@@ -28,7 +28,7 @@ public class GameLogic {
         this.ups = ups;
 
         //String file = "music/Jonathon Young - Jetpack Race";
-        String file = "music/60 BPM - Simple Straight Beat";
+        String file = "music/KUURO - Trigger";
 
         gameState = new GameState(file);
 

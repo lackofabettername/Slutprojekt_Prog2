@@ -15,23 +15,29 @@ public class MenuNumberField extends MenuObject implements Serializable {
 
     private transient float previousMouseX = -1;
     public float stepSize;
+    public float resolution;
+
+    private float accumulator;
 
     private transient boolean userPlacedPeriod;
     private transient boolean empty = true;
 
     public MenuNumberField(String name) {
-        this(name, null, 1, 10);
+        this(name, null, 1, 1, 10);
     }
     public MenuNumberField(String name, float stepSize) {
-        this(name, null, stepSize, 10);
+        this(name, null, stepSize, 1, 10);
     }
     public MenuNumberField(String name, float stepSize, float textSize) {
-        this(name, null, stepSize, textSize);
+        this(name, null, stepSize, 1, textSize);
     }
     public MenuNumberField(String name, Bounds2 bounds) {
-        this(name, bounds, 1, 10);
+        this(name, bounds, 1, 1, 10);
     }
     public MenuNumberField(String name, Bounds2 bounds, float stepSize, float textSize) {
+        this(name, bounds, stepSize, 1, textSize);
+    }
+    public MenuNumberField(String name, Bounds2 bounds, float stepSize, float resolution, float textSize) {
         super(name);
 
         menuText = new MenuText("", textSize);
@@ -39,6 +45,7 @@ public class MenuNumberField extends MenuObject implements Serializable {
 
         setBounds(bounds);
         this.stepSize = stepSize;
+        this.resolution = resolution;
 
         foregroundColor = new Color(ColorMode.RGBA, 1, 1, 1, 1);
         backgroundColor = new Color(ColorMode.RGBA, 0.2f, 0.2f, 0.2f, 0);
@@ -111,7 +118,13 @@ public class MenuNumberField extends MenuObject implements Serializable {
         if (event instanceof MouseEvent mouseEvent) {
             if (active && mouseEvent.Type == MouseEventType.MouseDragged) {
                 if (previousMouseX != -1) {
-                    value += (mouseEvent.MouseX - previousMouseX) * stepSize;
+                    accumulator += (mouseEvent.MouseX - previousMouseX) * resolution;
+                    for (; accumulator >= 1; --accumulator)
+                        value += stepSize;
+                    for (; accumulator <= -1; ++accumulator)
+                        value -= stepSize;
+
+
                     empty = false;
                     parent.uiEvent(this);
                 }

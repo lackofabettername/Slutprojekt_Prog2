@@ -138,42 +138,37 @@ public class Application {
 
         @Override
         public void mouseMoved(processing.event.MouseEvent event) {
-            mouseEvent(new MouseEvent(MouseEventType.MouseMoved, getMouseButton(event), event.getX(), event.getY()));
+            mouseEvent(new MouseEvent(MouseEventType.MouseMoved, event.getX(), event.getY()));
         }
 
         @Override
         public void mouseDragged(processing.event.MouseEvent event) {
-            mouseEvent(new MouseEvent(MouseEventType.MouseDragged, getMouseButton(event), event.getX(), event.getY()));
+            mouseEvent(new MouseEvent(MouseEventType.MouseDragged, event.getX(), event.getY(), getMouseButton(event)));
         }
 
         @Override
         public void mouseClicked(processing.event.MouseEvent event) {
-            mouseEvent(new MouseEvent(MouseEventType.MouseButtonClicked, getMouseButton(event), event.getX(), event.getY()));
+            mouseEvent(new MouseEvent(MouseEventType.MouseButtonClicked, event.getX(), event.getY(), getMouseButton(event)));
         }
 
         @Override
         public void mousePressed(processing.event.MouseEvent event) {
-            mouseEvent(new MouseEvent(MouseEventType.MouseButtonPressed, getMouseButton(event), event.getX(), event.getY()));
+            mouseEvent(new MouseEvent(MouseEventType.MouseButtonPressed, event.getX(), event.getY(), getMouseButton(event)));
         }
 
         @Override
         public void mouseReleased(processing.event.MouseEvent event) {
-            mouseEvent(new MouseEvent(MouseEventType.MouseButtonReleased, getMouseButton(event), event.getX(), event.getY()));
+            mouseEvent(new MouseEvent(MouseEventType.MouseButtonReleased, event.getX(), event.getY(), getMouseButton(event)));
         }
 
         @Override
         public void mouseWheel(processing.event.MouseEvent event) {
-            mouseEvent(new MouseEvent(MouseEventType.MouseWheel, getMouseButton(event), event.getX(), event.getY()));
-        }
-
-        private MouseButton getMouseButton(processing.event.MouseEvent event) {
-            return switch (event.getButton()) {
-                case LEFT -> MouseButton.Left;
-                case 3 -> MouseButton.Middle;
-                case RIGHT -> MouseButton.Right;
-                default -> null;
-            };
+            mouseEvent(new MouseEvent(MouseEventType.MouseWheel, event.getX(), event.getY(), event.getCount()));
         }
         //endregion
+
+        private int getMouseButton(processing.event.MouseEvent event) {
+            return ((java.awt.event.MouseEvent) event.getNative()).getButton();
+        }
     }
 }

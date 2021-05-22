@@ -16,9 +16,11 @@ public class BeatHandler implements Serializable {//TODO replace with ArrayList 
     public int startOffset;
 
     //region Constructors
-    public BeatHandler(HashMap<Byte, LinkedList<Beat>> beats) {
+    public BeatHandler(HashMap<Byte, LinkedList<Beat>> beats, float bpm, int startOffset) {
         this.beats = beats;
         this.beatIndex = new HashMap<>();
+        this.bpm = bpm;
+        this.startOffset = startOffset;
     }
     public BeatHandler() {
         beats = new HashMap<>();
@@ -34,6 +36,7 @@ public class BeatHandler implements Serializable {//TODO replace with ArrayList 
 
         beatIndex = new HashMap<>();
     }
+
     public static BeatHandler load(String filePath) {
         try {
             FileInputStream in = new FileInputStream(filePath);
@@ -53,9 +56,11 @@ public class BeatHandler implements Serializable {//TODO replace with ArrayList 
         out.write(Utility.serialize(this));
     }
 
+    //final transient fields are stuck as null when deserialized.
+    //Construct a new instance with non null final transient fields.
     @Serial
     public Object readResolve() {
-        return new BeatHandler(this.beats);
+        return new BeatHandler(this.beats, this.bpm, this.startOffset);
     }
     //endregion
 

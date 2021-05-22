@@ -17,7 +17,7 @@ public class UI {
     public UI(Application parent, MenuFramework framework) {
         _framework = framework;
 
-        buffer = parent.createBuffer((int) framework.bounds.w, (int) framework.bounds.h);
+        buffer = parent.createBuffer(parent.WindowW, parent.WindowH);
         buffer.beginDraw();
         buffer.colorMode(PConstants.RGB, 1);
         buffer.textAlign(PConstants.CENTER, PConstants.CENTER);
