@@ -35,12 +35,6 @@ public class MainMenu implements WindowLogic, UIListener {
 
         MenuFramework framework = new MenuFramework("Menu", this, padding, padding, window.WindowW - padding * 2, window.WindowH - padding * 2);
 
-        MenuDropdownFramework dropdown = new MenuDropdownFramework("dropdown");
-        dropdown.addMenuObject(new MenuFileSelector("files", "music"));
-        dropdown.collapsedText = new MenuText("Cool", 20);
-
-        //framework.addMenuObject(dropdown, 1);
-
         //region Add elements
         //region Server
         MenuFramework server = new MenuFramework("Server pane");
@@ -84,8 +78,6 @@ public class MainMenu implements WindowLogic, UIListener {
 
         //dropdown.fitElements(padding);
         //endregion
-
-        //dropdown.expandedBounds.h *= 3;
 
         ui = new UI(window, framework);
     }

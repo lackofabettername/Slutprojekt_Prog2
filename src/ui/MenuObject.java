@@ -43,7 +43,7 @@ public abstract class MenuObject implements Serializable {
     protected void renderBounds(PGraphics g) {
         if (renderBounds) {
             g.stroke(1);
-            g.noFill();
+            g.fill(backgroundColor.getRed(), backgroundColor.getGreen(), backgroundColor.getBlue(), backgroundColor.getAlpha());
             g.rect(bounds.x, bounds.y, bounds.w, bounds.h);
         }
     }

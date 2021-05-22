@@ -40,7 +40,7 @@ public class UI {
 
             buffer.endDraw();
 
-            update = false;
+           update = false;
         }
 
         g.image(buffer, _framework.bounds.x, _framework.bounds.y);

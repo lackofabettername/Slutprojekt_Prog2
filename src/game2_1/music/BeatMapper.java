@@ -62,9 +62,11 @@ public class BeatMapper implements WindowLogic, UIListener {
         temp.addMenuObject(new MenuButton("Save", 18), 0, 1, 3, 1);
         menu.addMenuObject(temp, 0, 1, 8, 2);
 
+
         menu.fitElements(3);
         temp.fitElements(3, 0);
         dropdown.fitElements(0);
+
 
         dropdown.expandedBounds.h *= 6;
         ui = new UI(window, menu);

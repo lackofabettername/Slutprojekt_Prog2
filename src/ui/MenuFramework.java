@@ -3,9 +3,7 @@ package ui;
 
 
 import game2_1.events.InputEvent;
-import utility.Bounds2;
-import utility.Coord2;
-import utility.Vector2;
+import utility.*;
 
 import processing.core.PGraphics;
 
@@ -18,7 +16,7 @@ public class MenuFramework extends MenuObject implements UIListener {
 
     private MenuObject selectedObject;
 
-    private int minX, minY, width, height;
+    protected int width, height;
     private ArrayList<Coord2> openSpots;
     private HashSet<MenuObject> floatingPositions;
 
@@ -38,6 +36,9 @@ public class MenuFramework extends MenuObject implements UIListener {
         floatingPositions = new HashSet<>();
 
         renderBounds = false;
+
+        foregroundColor = new Color(ColorMode.RGBA, 1,1,1,1);
+        backgroundColor = new Color(ColorMode.RGBA, 1,1,1,0);
     }
     public MenuFramework(String name, UIListener parent, float x, float y, float w, float h) {
         this(name, parent, new Bounds2(x, y, w, h));
@@ -76,7 +77,7 @@ public class MenuFramework extends MenuObject implements UIListener {
         if (openSpots.size() == 0) {
             for (int j = 0; j < height + (width <= height ? 0 : 1); ++j) {
                 for (int i = 0; i < width + (width <= height ? 1 : 0); ++i) {
-                    openSpots.add(new Coord2(minX + i, minY + j));
+                    openSpots.add(new Coord2(i, j));
                 }
             }
             alignments.forEach((object, alignment) -> {
@@ -96,7 +97,7 @@ public class MenuFramework extends MenuObject implements UIListener {
         if (openSpots.size() == 0) {
             for (int j = 0; j < height + (axis % 2); ++j) {
                 for (int i = 0; i < width + ((axis + 1) % 2); ++i) {
-                    openSpots.add(new Coord2(minX + i, minY + j));
+                    openSpots.add(new Coord2(i, j));
                 }
             }
             alignments.forEach((object, alignment) -> {
@@ -126,10 +127,8 @@ public class MenuFramework extends MenuObject implements UIListener {
 
         menu.put(menuObject.name, menuObject);
 
-        minX = Math.min(minX, x);
-        minY = Math.min(minY, y);
-        width = Math.max(width, x - minX + w);
-        height = Math.max(height, y - minY + h);
+        width = Math.max(width, x + w);
+        height = Math.max(height, y + h);
         alignments.put(menuObject, new Alignment(x, y, w, h));
     }
 
@@ -149,6 +148,9 @@ public class MenuFramework extends MenuObject implements UIListener {
         fitElements(padding, padding);
     }
     public void fitElements(float innerPadding, float outerPadding) {
+        if (bounds == null)
+            return;
+
         Vector2 objectDimensions = Vector2.sub(bounds.w, bounds.h, innerPadding * (width - 1), innerPadding * (height - 1))
                 .sub(outerPadding * 2, outerPadding * 2)
                 .div(width, height);
@@ -233,19 +235,28 @@ public class MenuFramework extends MenuObject implements UIListener {
         g.pop();
     }
 
-    @Override
-    public boolean handleEvent(InputEvent event, Vector2 translation) {
-        translation.add(bounds.getCorner(0));
-
+    protected final boolean selectedObjectHanleEvent(InputEvent event, Vector2 translation) {
         if (selectedObject != null) {
+            translation.add(bounds.getCorner(0));
             if (selectedObject.handleEvent(event, translation)) {
                 translation.sub(bounds.getCorner(0));
                 return true;
             }
+            translation.sub(bounds.getCorner(0));
+            selectedObject = null;
         }
 
+        return false;
+    }
 
-        selectedObject = null;
+    @Override
+    public boolean handleEvent(InputEvent event, Vector2 translation) {
+
+        if (selectedObjectHanleEvent(event, translation)) {
+            return true;
+        }
+
+        translation.add(bounds.getCorner(0));
 
         for (Map.Entry<MenuObject, Alignment> entry : alignments.entrySet()) {
             MenuObject menuObject = entry.getKey();
