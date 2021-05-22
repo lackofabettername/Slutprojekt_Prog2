@@ -1,7 +1,6 @@
 package game2_1;
 
 import game2_1.events.*;
-import game2_1.internet.Client;
 import utility.Bounds2;
 import utility.Debug;
 
@@ -13,12 +12,10 @@ public class Application {
     public final int WindowW;
     public final int WindowH;
 
-    GameState state;
-
     private final PAppletImpl window;
     private final Thread windowThread;
 
-    WindowLogic currentLogic;
+    private WindowLogic currentLogic;
 
     public Application(int width, int height) {
         Bounds = new Bounds2(0, 0, width, height);
@@ -104,11 +101,11 @@ public class Application {
         //region Input Events
         private void keyEvent(KeyEvent event) {
             if (currentLogic != null)
-                currentLogic.keyEvent(event);
+                currentLogic.onKeyEvent(event);
         }
         private void mouseEvent(MouseEvent event) {
             if (currentLogic != null)
-                currentLogic.mouseEvent(event);
+                currentLogic.onMouseEvent(event);
         }
 
 

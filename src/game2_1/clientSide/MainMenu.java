@@ -1,5 +1,8 @@
-package game2_1;
+package game2_1.clientSide;
 
+import game2_1.Application;
+import game2_1.Game;
+import game2_1.WindowLogic;
 import game2_1.events.KeyEvent;
 import game2_1.events.MouseEvent;
 import ui.*;
@@ -12,7 +15,7 @@ import java.io.UncheckedIOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
-public class MenuLogic implements WindowLogic, UIListener {
+public class MainMenu implements WindowLogic, UIListener {
     final Game parent;
     final Application window;
     final UI ui;
@@ -24,7 +27,7 @@ public class MenuLogic implements WindowLogic, UIListener {
     private final MenuTextField txfClientAddress, txfClientPort;
 
 
-    MenuLogic(Game parent) {
+    public MainMenu(Game parent) {
         this.parent = parent;
         window = parent.window;
 
@@ -108,11 +111,11 @@ public class MenuLogic implements WindowLogic, UIListener {
         ui.onRender(g);
     }
     @Override
-    public void keyEvent(KeyEvent event) {
+    public void onKeyEvent(KeyEvent event) {
         ui.handleEvent(event);
     }
     @Override
-    public void mouseEvent(MouseEvent event) {
+    public void onMouseEvent(MouseEvent event) {
         ui.handleEvent(event);
     }
 
@@ -165,9 +168,9 @@ public class MenuLogic implements WindowLogic, UIListener {
 
             lblClientStat.text = "Off";
         } else if (caller == btnStartGame) {
-            parent.window.currentLogic = parent.clientSide;
+            parent.window.setLogic(parent.clientSide);
         } else if (caller == btnMapSong) {
-            parent.window.currentLogic = parent.songMapper;
+            parent.window.setLogic(parent.songMapper);
         }
     }
 }

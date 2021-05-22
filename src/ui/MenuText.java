@@ -36,8 +36,7 @@ public class MenuText extends MenuObject implements Serializable {
     public void onRenderElement(PGraphics g) {
         g.fill(backgroundColor.getRed(), backgroundColor.getGreen(), backgroundColor.getBlue(), backgroundColor.getAlpha());
 
-        g.stroke(1);
-        g.rect(bounds.x, bounds.y, bounds.w, bounds.h);
+        renderBounds(g);
 
         g.textSize(textSize);
 

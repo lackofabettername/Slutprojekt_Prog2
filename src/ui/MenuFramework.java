@@ -36,6 +36,8 @@ public class MenuFramework extends MenuObject implements UIListener {
         openSpots = new ArrayList<>();
         openSpots.add(new Coord2(0, 0));
         floatingPositions = new HashSet<>();
+
+        renderBounds = false;
     }
     public MenuFramework(String name, UIListener parent, float x, float y, float w, float h) {
         this(name, parent, new Bounds2(x, y, w, h));
@@ -143,7 +145,7 @@ public class MenuFramework extends MenuObject implements UIListener {
         throw new UnsupportedOperationException("todo");
     }
 
-    public void fitElements(float padding) {
+    public final void fitElements(float padding) {
         fitElements(padding, padding);
     }
     public void fitElements(float innerPadding, float outerPadding) {
@@ -207,12 +209,11 @@ public class MenuFramework extends MenuObject implements UIListener {
 
     @Override
     public void onRenderElement(PGraphics g) {
+        renderBounds(g);
+
         g.push();
         g.translate(bounds.x, bounds.y);
         g.noFill();
-
-        //g.stroke(255, 80);
-        //g.rect(0, 0, bounds.w, bounds.h);
 
         g.noStroke();
         g.strokeWeight(1);

@@ -54,8 +54,7 @@ public class MenuFileSelector extends MenuObject {
 
     @Override
     public void onRenderElement(PGraphics g) {
-        g.stroke(1);
-        g.rect(bounds.x, bounds.y, bounds.w, bounds.h);
+        renderBounds(g);
 
         g.fill(1);
 

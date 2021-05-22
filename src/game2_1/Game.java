@@ -1,6 +1,8 @@
 package game2_1;
 
+import game2_1.clientSide.MainMenu;
 import game2_1.clientSide.RenderLogic;
+import game2_1.clientSide.SongMenu;
 import game2_1.internet.Client;
 import game2_1.internet.NetPacket;
 import game2_1.internet.Server;
@@ -31,7 +33,7 @@ public class Game {
 
     public BeatMapper songMapper;
 
-    public final MenuLogic menu;
+    public final MainMenu menu;
 
     public Game() {
         Locale.setDefault(Locale.ENGLISH);
@@ -49,9 +51,11 @@ public class Game {
 
         Debug.logPush("Starting UI...");
         clientSide = new RenderLogic(window);
-        menu = new MenuLogic(this);
+        menu = new MainMenu(this);
         window.setLogic(menu);
         Debug.logPop("UI started");
+
+        window.setLogic(new SongMenu(window));
 
         songMapper = new BeatMapper(window);
 

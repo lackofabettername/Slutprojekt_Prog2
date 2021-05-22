@@ -46,8 +46,7 @@ public class MenuSlider extends MenuObject implements Serializable {
             g.fill(backgroundColor.getRed(), backgroundColor.getGreen(), backgroundColor.getBlue());
 
 
-        g.stroke(1);
-        g.rect(bounds.x, bounds.y, bounds.w, bounds.h);
+        renderBounds(g);
 
         if (foregroundColor != null) {
             g.stroke(foregroundColor.getRed(), foregroundColor.getGreen(), foregroundColor.getBlue());

@@ -241,7 +241,7 @@ public class BeatMapper implements WindowLogic, UIListener {
 
     //region Events
     @Override
-    public void keyEvent(KeyEvent event) {
+    public void onKeyEvent(KeyEvent event) {
         if (ui.handleEvent(event))
             return;
 
@@ -264,7 +264,7 @@ public class BeatMapper implements WindowLogic, UIListener {
     }
 
     @Override
-    public void mouseEvent(MouseEvent event) {
+    public void onMouseEvent(MouseEvent event) {
         this.mouseX = event.MouseX;
         this.mouseY = event.MouseY;
 

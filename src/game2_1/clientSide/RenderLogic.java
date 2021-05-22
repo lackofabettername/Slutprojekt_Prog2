@@ -65,7 +65,7 @@ public class RenderLogic implements WindowLogic {
                         clientGameState = info.gameState();
 
                         clientGameState.music = new MusicPlayer(clientGameState.songPath + ".wav", 1);
-                        clientGameState.beats = BeatHandler.load(clientGameState.songPath + ".txt");
+                        //clientGameState.beats = BeatHandler.load(clientGameState.songPath + ".txt");
                         for (byte id : clientGameState.players.keySet())
                             clientGameState.players.compute(id, (ignored, player) -> new Player(Objects.requireNonNull(player), id));
                     }
@@ -161,11 +161,11 @@ public class RenderLogic implements WindowLogic {
     }
 
     @Override
-    public void keyEvent(KeyEvent event) {
+    public void onKeyEvent(KeyEvent event) {
         client.queue(event);
     }
     @Override
-    public void mouseEvent(MouseEvent event) {
+    public void onMouseEvent(MouseEvent event) {
         client.queue(event);
     }
 

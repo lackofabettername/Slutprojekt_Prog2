@@ -8,6 +8,6 @@ import processing.core.PGraphics;
 public interface WindowLogic {
     void render(PGraphics g);
 
-    void keyEvent(KeyEvent event);
-    void mouseEvent(MouseEvent event);
+    void onKeyEvent(KeyEvent event);
+    void onMouseEvent(MouseEvent event);
 }

@@ -18,6 +18,7 @@ public abstract class MenuObject implements Serializable {
     public UIListener parent;
     public Bounds2 bounds;
 
+    public boolean renderBounds = true;
     public Color foregroundColor;
     public Color backgroundColor;
 
@@ -37,6 +38,14 @@ public abstract class MenuObject implements Serializable {
 
     public void setParent(UIListener parent) {
         this.parent = parent;
+    }
+
+    protected void renderBounds(PGraphics g) {
+        if (renderBounds) {
+            g.stroke(1);
+            g.noFill();
+            g.rect(bounds.x, bounds.y, bounds.w, bounds.h);
+        }
     }
 
     public abstract void onRenderElement(PGraphics g);

@@ -19,7 +19,7 @@ import java.util.HashMap;
  */
 public class GameState implements Serializable {
     public transient MusicPlayer music;
-    public transient BeatHandler beats;
+    public BeatHandler beats;
     public String songPath;
 
     public float frameCount;
@@ -39,7 +39,7 @@ public class GameState implements Serializable {
         this.scores = scores;
     }
     public GameState(String songPath) {
-        this(BeatHandler.load(songPath), songPath, 0, new HashMap<>(), new ArrayList<>(), new HashMap<>());
+        this(BeatHandler.load(songPath + ".txt"), songPath, 0, new HashMap<>(), new ArrayList<>(), new HashMap<>());
     }
     public GameState() {
         this(null, null, -1, new HashMap<>(), new ArrayList<>(), new HashMap<>());
