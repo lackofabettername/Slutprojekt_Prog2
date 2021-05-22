@@ -12,6 +12,7 @@ import utility.Bounds2;
 import utility.Debug;
 import utility.MathF;
 
+import java.io.File;
 import java.io.IOException;
 
 public class BeatMapper implements WindowLogic, UIListener {
@@ -51,7 +52,7 @@ public class BeatMapper implements WindowLogic, UIListener {
 
 
         MenuDropdownFramework dropdown = new MenuDropdownFramework("dropdown song selector");
-        dropdown.addMenuObject(new MenuFileSelector("Song selector", "music", file -> file.toString().endsWith(".wav")));
+        dropdown.addMenuObject(new MenuFileSelector("Song selector", "music", File::isDirectory));
         menu.addMenuObject(dropdown, 5, 0, 3, 1);
 
         MenuFramework temp = new MenuFramework("Holder");
@@ -193,7 +194,7 @@ public class BeatMapper implements WindowLogic, UIListener {
         if (musicPlayer.playing)
             musicPlayer.stop();
 
-        musicPlayer = new MusicPlayer(songPath, playbackRate);
+        musicPlayer = new MusicPlayer(songPath + "song.wav", playbackRate);
         musicPlayer.start(musicStartTime);
     }
 
@@ -319,27 +320,25 @@ public class BeatMapper implements WindowLogic, UIListener {
             case "Stop" -> stop();
             case "Save" -> {
                 try {
-                    beats.save(songPath.replaceAll("wav", "txt"));
+                    beats.save(songPath + "beats.txt");
                 } catch (IOException e) {
                     Debug.logError(e);
                 }
             }
             default -> {
-                if (caller.parent instanceof MenuFramework parent) {
-                    if (parent.name.equals("Song selector")) {
-                        songPath = "music/" + caller.name;
-                        musicPlayer = new MusicPlayer(songPath, playbackRate);
-                        beats = BeatHandler.load(songPath.replaceAll("wav", "txt"));
+                if (caller.parent instanceof MenuObject && ((MenuObject) caller.parent).name.equals("Song selector")) {
+                    songPath = "music/" + caller.name + "/";
+                    musicPlayer = new MusicPlayer(songPath + "song.wav", playbackRate);
+                    beats = BeatHandler.load(songPath + "beats.txt");
 
-                        setBPM(beats.bpm);
-                        ((MenuNumberField) ui.getMenuObject("StartOffset")).value = beats.startOffset;
-                        musicTime = 0;
-                        musicStartTime = 0;
+                    setBPM(beats.bpm);
+                    ((MenuNumberField) ui.getMenuObject("StartOffset")).value = beats.startOffset;
+                    musicTime = 0;
+                    musicStartTime = 0;
 
-                        //beats = new BeatHandler();
+                    //beats = new BeatHandler();
 
-                        ((MenuDropdownFramework) parent.parent).collapsedText = new MenuText(caller.name, 14);
-                    }
+                    ((MenuDropdownFramework) ((MenuObject) caller.parent).parent).collapsedText = new MenuText(caller.name, 14);
                 }
             }
         }

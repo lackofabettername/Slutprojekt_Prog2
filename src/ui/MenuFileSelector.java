@@ -13,7 +13,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.util.Arrays;
 
-public class MenuFileSelector extends MenuObject {
+public class MenuFileSelector extends MenuObject implements UIListener {
     File folder;
     File[] files;
 
@@ -37,11 +37,13 @@ public class MenuFileSelector extends MenuObject {
         if (files != null)
             Arrays.sort(files);
 
-        framework = new MenuScrollFrameWork(name, bounds, new Vector2(100));
+        framework = new MenuScrollFrameWork(name + " dummy framework", bounds, new Vector2(100));
 
         textSize = 20;
         for (int i = 0; i < files.length; ++i) {
-            framework.addMenuObject(new MenuButton(files[i].getName(), textSize), 1);
+            MenuButton btn = new MenuButton(files[i].getName(), textSize);
+            framework.addMenuObject(btn, 1);
+            btn.setParent(this);
         }
 
         framework.fitElements(0);
@@ -61,6 +63,7 @@ public class MenuFileSelector extends MenuObject {
 
     @Override
     public void setParent(UIListener parent) {
+        this.parent = parent;
         framework.setParent(parent);
     }
 
@@ -77,5 +80,10 @@ public class MenuFileSelector extends MenuObject {
             return framework.handleEvent(event, translation);
         }
         return false;
+    }
+
+    @Override
+    public void uiEvent(MenuObject caller) {
+        framework.uiEvent(caller);
     }
 }

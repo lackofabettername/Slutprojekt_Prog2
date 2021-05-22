@@ -55,7 +55,7 @@ public class Game {
         window.setLogic(menu);
         Debug.logPop("UI started");
 
-        window.setLogic(new SongMenu(window));
+        //window.setLogic(new SongMenu(window, clientSide));
 
         songMapper = new BeatMapper(window);
 

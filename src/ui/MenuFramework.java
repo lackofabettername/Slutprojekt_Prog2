@@ -37,8 +37,8 @@ public class MenuFramework extends MenuObject implements UIListener {
 
         renderBounds = false;
 
-        foregroundColor = new Color(ColorMode.RGBA, 1,1,1,1);
-        backgroundColor = new Color(ColorMode.RGBA, 1,1,1,0);
+        foregroundColor = new Color(ColorMode.RGBA, 1, 1, 1, 1);
+        backgroundColor = new Color(ColorMode.RGBA, 1, 1, 1, 0);
     }
     public MenuFramework(String name, UIListener parent, float x, float y, float w, float h) {
         this(name, parent, new Bounds2(x, y, w, h));
@@ -61,18 +61,18 @@ public class MenuFramework extends MenuObject implements UIListener {
     public void setParent(UIListener parent) {
         super.setParent(parent);
 
-        if (menu != null) {
-            menu.forEach((name, menuObject) -> {
-                if (menuObject.parent != this) {
-                    if (menuObject.parent instanceof MenuFramework oldParent)
-                        oldParent.removeMenuObject(menuObject);
-                    menuObject.setParent(this);
-                }
-            });
-        }
+        //if (menu != null) {
+        //    menu.forEach((name, menuObject) -> {
+        //        if (menuObject.parent != this) {
+        //            if (menuObject.parent instanceof MenuFramework oldParent)
+        //                oldParent.removeMenuObject(menuObject);
+        //            menuObject.setParent(this);
+        //        }
+        //    });
+        //}
     }
 
-    public void addMenuObject(MenuObject menuObject) {
+    public final void addMenuObject(MenuObject menuObject) {
         floatingPositions.add(menuObject);
         if (openSpots.size() == 0) {
             for (int j = 0; j < height + (width <= height ? 0 : 1); ++j) {
@@ -92,7 +92,7 @@ public class MenuFramework extends MenuObject implements UIListener {
         Coord2 pos = openSpots.remove(0);
         addMenuObject(menuObject, pos.x, pos.y, 1, 1);
     }
-    public void addMenuObject(MenuObject menuObject, int axis) {
+    public final void addMenuObject(MenuObject menuObject, int axis) {
         floatingPositions.add(menuObject);
         if (openSpots.size() == 0) {
             for (int j = 0; j < height + (axis % 2); ++j) {
@@ -112,12 +112,16 @@ public class MenuFramework extends MenuObject implements UIListener {
         Coord2 pos = openSpots.remove(0);
         addMenuObject(menuObject, pos.x, pos.y, 1, 1);
     }
-    public void addMenuObject(MenuObject menuObject, int x, int y) {
+    public final void addMenuObject(MenuObject menuObject, int x, int y) {
         addMenuObject(menuObject, x, y, 1, 1);
     }
-    public void addMenuObject(MenuObject menuObject, int x, int y, int w, int h) {
+    public final void addMenuObject(MenuObject menuObject, int x, int y, int w, int h) {
         if (w <= 0) throw new IllegalArgumentException("width must be greater than 0");
         if (h <= 0) throw new IllegalArgumentException("height must be greater than 0");
+        if (menu.containsKey(menuObject.name)) {
+            Debug.logWarning("There is already a menu item with the name \"" + menuObject.name + "\"!");
+            return;
+        }
 
         if (menuObject.parent != this) {
             if (menuObject.parent instanceof MenuFramework parent)
@@ -126,6 +130,7 @@ public class MenuFramework extends MenuObject implements UIListener {
         }
 
         menu.put(menuObject.name, menuObject);
+
 
         width = Math.max(width, x + w);
         height = Math.max(height, y + h);

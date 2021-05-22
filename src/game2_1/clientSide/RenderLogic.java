@@ -22,7 +22,7 @@ public class RenderLogic implements WindowLogic {
     private GameState previousGameState;
     private GameState currentGameState;
 
-    private GameState clientGameState;
+    GameState clientGameState;
 
     private int serverUPS;
     private long gameStateTimeStamp;

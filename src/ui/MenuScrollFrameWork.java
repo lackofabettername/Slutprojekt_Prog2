@@ -59,22 +59,6 @@ public class MenuScrollFrameWork extends MenuFramework {
     public void setParent(UIListener parent) {
         super.setParent(parent);
     }
-    @Override
-    public void addMenuObject(MenuObject menuObject) {
-        super.addMenuObject(menuObject);
-    }
-    @Override
-    public void addMenuObject(MenuObject menuObject, int axis) {
-        super.addMenuObject(menuObject, axis);
-    }
-    @Override
-    public void addMenuObject(MenuObject menuObject, int x, int y) {
-        super.addMenuObject(menuObject, x, y);
-    }
-    @Override
-    public void addMenuObject(MenuObject menuObject, int x, int y, int w, int h) {
-        super.addMenuObject(menuObject, x, y, w, h);
-    }
 
     @Override
     public void removeMenuObject(MenuObject menuObject) {
@@ -89,7 +73,6 @@ public class MenuScrollFrameWork extends MenuFramework {
         Bounds2 orig = new Bounds2(bounds);
         if (bounds.w / width < minElementSize.x) {
             scrollbarX = true;
-            Debug.logDecorated("Add ScrollbarX", Foreground.Cyan);
 
             bounds.w = minElementSize.x * width;
             bounds.h -= scrollbarThickness;
@@ -99,7 +82,6 @@ public class MenuScrollFrameWork extends MenuFramework {
         }
         if (bounds.h / height < minElementSize.y) {
             scrollbarY = true;
-            Debug.logDecorated("Add ScrollbarY", Foreground.Cyan);
 
             bounds.h = minElementSize.y * height;
             bounds.w -= scrollbarThickness;

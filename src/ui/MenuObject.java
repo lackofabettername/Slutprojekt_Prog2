@@ -55,4 +55,11 @@ public abstract class MenuObject implements Serializable {
             return bounds.inBounds(Vector2.sub(mouseEvent.MouseX, mouseEvent.MouseY, translation));
         return false;
     }
+
+    @Override
+    public String toString() {
+        return "MenuObject{" +
+                "name='" + name + '\'' +
+                '}';
+    }
 }
