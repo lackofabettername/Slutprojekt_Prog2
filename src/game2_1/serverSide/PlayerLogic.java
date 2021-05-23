@@ -1,13 +1,10 @@
 package game2_1.serverSide;
 
 import game2_1.GameState;
-import game2_1.clientSide.ParticleSystem;
 import game2_1.events.InputEvent;
 import game2_1.events.KeyEvent;
 import game2_1.events.MouseEvent;
 import utility.*;
-
-import processing.core.PGraphics;
 
 import java.io.Serializable;
 import java.util.*;
@@ -23,6 +20,8 @@ public class PlayerLogic implements Serializable {
     public Vector2 pos, vel;
     public Vector2 cursor;
 
+    public byte weaponType;
+
     public final transient HashMap<Character, Movement> keyBinds;
     private final EnumSet<Movement> movement;
 
@@ -33,15 +32,17 @@ public class PlayerLogic implements Serializable {
                 parent,
                 new Vector2(40),
                 new Vector2(0, 0),
-                new Vector2()
+                new Vector2(),
+                (byte) -1
         );
     }
-    public PlayerLogic(byte id, GameState parent, Vector2 pos, Vector2 vel, Vector2 cursor) {
+    public PlayerLogic(byte id, GameState parent, Vector2 pos, Vector2 vel, Vector2 cursor, byte weaponType) {
         this.id = id;
         this.parent = parent;
         this.pos = pos;
         this.vel = vel;
         this.cursor = cursor;
+        this.weaponType = weaponType;
 
         //todo: read from file?
         keyBinds = new HashMap<>(Map.of(
@@ -133,35 +134,38 @@ public class PlayerLogic implements Serializable {
                 }
                 case MouseButtonClicked -> {
                 }
-                case MouseButtonPressed -> {
-                    Projectile toAdd;
-                    if (parent.music.playing) {
-                        toAdd = new Projectile(
-                                id,
-                                parent.beats.getStrength(
-                                        (byte) 0,
-                                        parent.music.getMicrosecondPosition() / 1000
-                                ),
-                                pos.copy(),
-                                Vector2.sub(cursor, pos).setMagnitude(15)
-                        );
-                    } else {
-                        toAdd = new Projectile(
-                                id,
-                                0,
-                                pos.copy(),
-                                Vector2.sub(cursor, pos).setMagnitude(15)
-                        );
-                    }
-                    //Debug.log("Added: " + toAdd);
-                    parent.projectiles.add(toAdd);
-                }
+                case MouseButtonPressed -> shoot();
                 case MouseButtonReleased -> {
                 }
                 case MouseWheel -> {
                 }
             }
         }
+    }
+
+    private void shoot() {
+        Projectile toAdd;
+
+        if (parent.music.playing) {
+            toAdd = new Projectile(
+                    id,
+                    parent.beats.getStrength(
+                            weaponType,
+                            parent.music.getMicrosecondPosition() / 1000
+                    ),
+                    pos.copy(),
+                    Vector2.sub(cursor, pos).setMagnitude(15)
+            );
+        } else {
+            toAdd = new Projectile(
+                    id,
+                    0,
+                    pos.copy(),
+                    Vector2.sub(cursor, pos).setMagnitude(15)
+            );
+        }
+        //Debug.log("Added: " + toAdd);
+        parent.projectiles.add(toAdd);
     }
 
     @Override

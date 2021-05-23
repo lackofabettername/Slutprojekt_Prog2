@@ -13,6 +13,7 @@ import game2_1.music.MusicPlayer;
 
 import processing.core.PGraphics;
 
+import game2_1.serverSide.PlayerLogic;
 import utility.Debug;
 
 import java.util.Objects;
@@ -20,9 +21,10 @@ import java.util.Queue;
 
 public class RenderLogic implements WindowLogic {
     private GameState previousGameState;
-    private GameState currentGameState;
+    GameState currentGameState;
 
-    GameState clientGameState;
+    private GameState clientGameState;
+    private PlayerLogic player;
 
     private int serverUPS;
     private long gameStateTimeStamp;
@@ -49,6 +51,8 @@ public class RenderLogic implements WindowLogic {
                         previousGameState = currentGameState;
                         currentGameState = (GameState) packet.object();
                         gameStateTimeStamp = packet.timeStamp();
+
+                        player = currentGameState.players.get(client.id);
                     }
                     case GameStateDelta -> {
                         //previousGameState.mutableMembers = currentGameState.mutableMembers;
@@ -59,12 +63,14 @@ public class RenderLogic implements WindowLogic {
                     case Information -> {
                         ClientInfo info = (ClientInfo) packet.object();
                         Debug.log(info);
+
                         client.id = info.clientId();
                         serverUPS = info.serverUPS();
 
                         clientGameState = info.gameState();
+                        player = clientGameState.players.get(client.id);
 
-                        clientGameState.music = new MusicPlayer(clientGameState.songPath + ".wav", 1);
+                        clientGameState.music = new MusicPlayer(clientGameState.songPath + "song.wav", 1);
                         //clientGameState.beats = BeatHandler.load(clientGameState.songPath + ".txt");
                         for (byte id : clientGameState.players.keySet())
                             clientGameState.players.compute(id, (ignored, player) -> new Player(Objects.requireNonNull(player), id));
@@ -92,16 +98,16 @@ public class RenderLogic implements WindowLogic {
 
         handleNetPackets();
 
+        if (!currentGameState.gameRunning) {
+            parent.setLogic(new SongMenu(parent, this));
+            return;
+        }
+
         if (previousGameState == null) return;
 
         float t = (System.currentTimeMillis() - gameStateTimeStamp) / (1000f / serverUPS);
         //t = 1;
         GameState serverGameState = GameState.lerp(t, previousGameState, currentGameState);
-//        if (currentGameState.projectiles.size() > 0 || serverGameState.projectiles.size() > 0) {
-//            Debug.logListCompare(currentGameState.projectiles, serverGameState.projectiles);
-//            Debug.log();
-//        }
-        //serverGameState = currentGameState;
 
         //region Debug
         g.background(0);
@@ -114,19 +120,12 @@ public class RenderLogic implements WindowLogic {
                 frameCount,
                 parent.getFrameRate(),
                 t,
-                serverGameState.frameCount,
+                serverGameState.updateCount,
                 Debug.collectionCompare(clientGameState.projectiles, serverGameState.projectiles)
         ), g.width / 2f, g.height / 2f);
         //endregion
 
-
         clientGameState.lerp(0.8f, serverGameState); //fixme
-//        if (clientGameState.projectiles.size() > 0 || serverGameState.projectiles.size() > 0) {
-//            Debug.logListCompare(clientGameState.projectiles, serverGameState.projectiles);
-//            Debug.log();
-//        }
-        //clientGameState.lerp(0.8f, serverGameState);
-        //clientGameState = serverGameState;
 
         //region Show
         clientGameState.players.forEach((id, player) -> ((Player) player).render(g));
@@ -135,21 +134,28 @@ public class RenderLogic implements WindowLogic {
         });
 
         g.push();
-////        clientGameState.beats.forEach((type, queue) -> {
-////            long time = clientGameState.music.getMicrosecondPosition() / 1000;
-////            g.stroke(1);
-////            for (BeatHandler.Beat beat : queue) {
-////                float x = beat.timeStamp() - time;
-////
-////                if (x < 0) continue;
-////
-////                x /= 1000f;
-////                x *= 250;//pixels per second
-////
-////                g.line(g.width / 2f + x, g.height - 12, g.width / 2f + x, g.height - 2);
-////                g.line(g.width / 2f - x, g.height - 12, g.width / 2f - x, g.height - 2);
-////            }
-////        });
+        clientGameState.beats.forEach((type, queue) -> {
+            if (type != player.weaponType)
+                return;
+
+            long time = clientGameState.music.getMicrosecondPosition() / 1000;//millis
+            time += clientGameState.beats.startOffset;
+
+            g.stroke(1);
+            int i = 0;
+            for (BeatHandler.Beat beat : queue) {
+                float x = beat.timeStamp() - time;
+
+                if (x < 0) continue;
+                //if (i++ > 3) break;//Only show the next three beats
+
+                x /= 1000f;
+                x *= 300;//pixels per second
+
+                g.line(g.width / 2f + x, g.height - 12, g.width / 2f + x, g.height - 2);
+                g.line(g.width / 2f - x, g.height - 12, g.width / 2f - x, g.height - 2);
+            }
+        });
         g.pop();
 
         final StringBuilder scoreText = new StringBuilder();

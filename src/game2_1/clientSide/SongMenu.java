@@ -4,6 +4,8 @@ import game2_1.Application;
 import game2_1.WindowLogic;
 import game2_1.events.KeyEvent;
 import game2_1.events.MouseEvent;
+import game2_1.internet.NetPacket;
+import game2_1.internet.NetPacketType;
 import ui.*;
 import utility.Bounds2;
 
@@ -13,6 +15,7 @@ import java.io.File;
 
 public class SongMenu implements WindowLogic, UIListener {
 
+    Application window;
     RenderLogic parent;
 
     //region UI
@@ -21,10 +24,17 @@ public class SongMenu implements WindowLogic, UIListener {
     private final MenuText txtSelectedSong;
     private final MenuText txtStatus1;
     private final MenuText txtStatus2;
+
+    private final MenuFramework fmwWeapons;
+    private final MenuButton btnWeapon1;//Todo, replace with radio buttons, and create dynamically
+    private final MenuButton btnWeapon2;
+    private final MenuButton btnWeapon3;
+
     private final MenuButton btnReady;
     //endregion
 
     public SongMenu(Application window, RenderLogic parent) {
+        this.window = window;
         this.parent = parent;
 
         //region UI
@@ -53,9 +63,17 @@ public class SongMenu implements WindowLogic, UIListener {
         txtStatus2.renderBounds = false;
         txtStatus2.text = "asds";
 
+        fmwWeapons = new MenuFramework("Weapons");
+        fmwWeapons.addMenuObject(btnWeapon1 = new MenuButton("todo1", 24), 0);
+        fmwWeapons.addMenuObject(btnWeapon2 = new MenuButton("2", 24), 0);
+        fmwWeapons.addMenuObject(btnWeapon3 = new MenuButton("todo3", 24), 0);
+        settingsPane.addMenuObject(fmwWeapons, 0, 3);
+
         settingsPane.addMenuObject(btnReady = new MenuButton("Ready", 24), 0, 4, 1, 4);
 
         settingsPane.fitElements(0, 0);
+        fmwWeapons.fitElements(0, 0);
+
         settingsPane.renderBounds = true;
         framework.addMenuObject(settingsPane);
         //endregion
@@ -68,7 +86,18 @@ public class SongMenu implements WindowLogic, UIListener {
     public void render(PGraphics g) {
         g.background(0);
 
-        txtStatus2.text = String.format("%d/%d players ready.", 0, parent.clientGameState.players.size());
+        parent.handleNetPackets();
+        if (parent.currentGameState.readyPlayers == parent.currentGameState.players.size()) {
+            window.setLogic(parent);
+            return;
+        }
+
+        txtStatus1.text = parent.currentGameState.songPath.replaceAll("music/", "").replaceAll("/", "");
+        txtStatus2.text = String.format(
+                "%d/%d players ready.",
+                parent.currentGameState.readyPlayers,
+                parent.currentGameState.players.size()
+        );
 
         ui.onRender(g);
     }
@@ -84,9 +113,39 @@ public class SongMenu implements WindowLogic, UIListener {
     @Override
     public void uiEvent(MenuObject caller) {
         if (caller.parent == fslSongSelector) {
-            txtSelectedSong.text = caller.name;
+            parent.client.send(new NetPacket(
+                    NetPacketType.Message,
+                    parent.client.id,
+                    "Selected" + caller.name
+            ));
+        } else if (caller.parent == fmwWeapons) {
+            //This will be way cleaner when it's radio buttons
+            if (caller == btnWeapon1) {
+                parent.client.send(new NetPacket(
+                        NetPacketType.Message,
+                        parent.client.id,
+                        "Weapon0"
+                ));
+            } else if (caller == btnWeapon2) {
+                parent.client.send(new NetPacket(
+                        NetPacketType.Message,
+                        parent.client.id,
+                        "Weapon1"
+                ));
+            } else if (caller == btnWeapon3) {
+                parent.client.send(new NetPacket(
+                        NetPacketType.Message,
+                        parent.client.id,
+                        "Weapon2"
+                ));
+            }
         } else if (caller == btnReady) {
             txtStatus1.text = "Ready";
+            parent.client.send(new NetPacket(
+                    NetPacketType.Message,
+                    parent.client.id,
+                    "Client Ready"
+            ));
         }
     }
 }

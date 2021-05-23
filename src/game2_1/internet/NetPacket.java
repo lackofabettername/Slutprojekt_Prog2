@@ -18,7 +18,7 @@ public record NetPacket(
         if (sender != (byte) sender) Debug.logWarning("sender ID is not a byte");
     }
 
-    public static final NetPacket EmptyPacket = new NetPacket(NetPacketType.Empty, (byte)-1, null);
+    public static final NetPacket EmptyPacket = new NetPacket(NetPacketType.Empty, (byte) -1, null);
 
     @Override
     public int compareTo(NetPacket packet) {

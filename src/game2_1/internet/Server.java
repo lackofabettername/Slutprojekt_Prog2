@@ -15,16 +15,6 @@ public class Server extends AbstractServer<NetPacket> {
 
     @Override
     protected void onClientJoin(ClientHandler client) {
-        sendTo(new NetPacket(
-                        NetPacketType.Information,
-                        (byte) 0,
-                        new ClientInfo(
-                                client.id,
-                                parent.serverSide.ups,
-                                parent.serverSide.gameState
-                                )),
-                client.id
-        );
         parent.serverSide.onClientJoin(client.id);
     }
     @Override

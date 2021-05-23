@@ -21,11 +21,12 @@ public class Player extends PlayerLogic {
                 player.vel,
                 new Color(ColorMode.HSVA, MathF.GoldenRatio * id % 1, 1, 1, 1),
                 null,
-                player.cursor
+                player.cursor,
+                player.weaponType
         );
     }
-    public Player(byte id, GameState parent, Vector2 pos, Vector2 vel, Color color, ParticleSystem particleSystem, Vector2 cursor) {
-        super(id, parent, pos, vel, cursor);
+    public Player(byte id, GameState parent, Vector2 pos, Vector2 vel, Color color, ParticleSystem particleSystem, Vector2 cursor, byte weaponType) {
+        super(id, parent, pos, vel, cursor, weaponType);
 
         this.col = color;
         createParticleSystem(particleSystem);

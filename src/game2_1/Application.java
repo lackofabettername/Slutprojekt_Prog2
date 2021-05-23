@@ -15,7 +15,7 @@ public class Application {
     private final PAppletImpl window;
     private final Thread windowThread;
 
-    private WindowLogic currentLogic;
+    private volatile WindowLogic currentLogic;
 
     public Application(int width, int height) {
         Bounds = new Bounds2(0, 0, width, height);
@@ -51,7 +51,6 @@ public class Application {
     public void setLogic(WindowLogic logic) {
         currentLogic = logic;
     }
-
 
     public float getFrameRate() {
         return window.frameRate;

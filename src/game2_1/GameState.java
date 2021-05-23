@@ -6,8 +6,6 @@ import game2_1.music.MusicPlayer;
 import game2_1.serverSide.PlayerLogic;
 import game2_1.serverSide.Projectile;
 import utility.*;
-import utility.style.Font;
-import utility.style.Foreground;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -18,11 +16,15 @@ import java.util.HashMap;
  * Stores the state of the game
  */
 public class GameState implements Serializable {
+    //The value of these are lost in the lerp
+    public boolean gameRunning;
+    public byte readyPlayers;
+
     public transient MusicPlayer music;
     public BeatHandler beats;
     public String songPath;
 
-    public float frameCount;
+    public float updateCount;
     public HashMap<Byte, PlayerLogic> players;
 
     public ArrayList<Projectile> projectiles;
@@ -30,16 +32,16 @@ public class GameState implements Serializable {
     public HashMap<Byte, Integer> scores;
 
     //region Constructors
-    public GameState(BeatHandler beats, String songPath, float frameCount, HashMap<Byte, PlayerLogic> players, ArrayList<Projectile> projectiles, HashMap<Byte, Integer> scores) {
+    public GameState(BeatHandler beats, String songPath, float updateCount, HashMap<Byte, PlayerLogic> players, ArrayList<Projectile> projectiles, HashMap<Byte, Integer> scores) {
         this.beats = beats;
         this.songPath = songPath;
-        this.frameCount = frameCount;
+        this.updateCount = updateCount;
         this.players = players;
         this.projectiles = projectiles;
         this.scores = scores;
     }
     public GameState(String songPath) {
-        this(BeatHandler.load(songPath + ".txt"), songPath, 0, new HashMap<>(), new ArrayList<>(), new HashMap<>());
+        this(BeatHandler.load(songPath + "beats.txt"), songPath, 0, new HashMap<>(), new ArrayList<>(), new HashMap<>());
     }
     public GameState() {
         this(null, null, -1, new HashMap<>(), new ArrayList<>(), new HashMap<>());
@@ -74,7 +76,7 @@ public class GameState implements Serializable {
         //endregion
 
         //region FrameCount
-        temp.frameCount = MathF.lerp(t, previous.frameCount, current.frameCount);
+        temp.updateCount = MathF.lerp(t, previous.updateCount, current.updateCount);
         //endregion
 
         //region Players
@@ -85,7 +87,8 @@ public class GameState implements Serializable {
                     temp,
                     Vector2.lerp(t, previousPlayerLogic.pos, currentPlayerLogic.pos).round(),
                     Vector2.lerp(t, previousPlayerLogic.vel, currentPlayerLogic.vel),
-                    Vector2.lerp(t, previousPlayerLogic.cursor, currentPlayerLogic.cursor)
+                    Vector2.lerp(t, previousPlayerLogic.cursor, currentPlayerLogic.cursor),
+                    previousPlayerLogic.weaponType
             ));
         });
         //endregion
@@ -127,7 +130,7 @@ public class GameState implements Serializable {
 
     public void lerp(float t, GameState target) {
         //region FrameCount
-        frameCount = MathF.lerp(t, frameCount, target.frameCount);
+        updateCount = MathF.lerp(t, updateCount, target.updateCount);
         //endregion
 
         //region Players
@@ -166,9 +169,8 @@ public class GameState implements Serializable {
                         break;
                 }
 
-                //if (currentProjectile.id < targetProjectile.id)
-                //    currentProjectile = targetProjectile;
 
+                //noinspection ConstantConditions
                 if (targetProjectile.id < currentProjectile.id) {
                     //Debug.log("Inserted: " + targetProjectile + " at ", false);
                     projectiles.add(Debug.log(j - 1), targetProjectile);
@@ -217,7 +219,7 @@ public class GameState implements Serializable {
         return "GameState{" +
                 "beats=" + beats +
                 ", music=" + music +
-                ", frameCount=" + frameCount +
+                ", updateCount=" + updateCount +
                 ", players=" + players +
                 ", projectiles=" + projectiles +
                 '}';
