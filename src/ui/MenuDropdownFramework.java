@@ -125,13 +125,15 @@ public class MenuDropdownFramework extends MenuFramework {
                 super.handleEvent(event, translation);
 
                 return true;
-            }
+            } else
+                expanded = false;
         }
 
-        if (super.handleEvent(event, translation))
-            return true;
+        if (expanded) {
+            if (super.handleEvent(event, translation))
+                return true;
+        }
 
-        expanded = false;
 
         return (animationTimer > 0);
     }

@@ -14,6 +14,9 @@ import utility.MathF;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
+import java.util.Date;
 
 public class BeatMapper implements WindowLogic, UIListener {
     private final Application window;
@@ -24,7 +27,7 @@ public class BeatMapper implements WindowLogic, UIListener {
     private BeatHandler beats;
     private String songPath;
 
-    private float pixelsPerSecond = 200;
+    private float pixelsPerSecond;
     private float bpm = 60;
     private float bps;
     private float playbackRate = 1;
@@ -72,6 +75,7 @@ public class BeatMapper implements WindowLogic, UIListener {
         dropdown.expandedBounds.h *= 6;
         ui = new UI(window, menu);
 
+        pixelsPerSecond = (window.WindowW - musicEditorOffsetPixels) * bps / 10;
         ((MenuNumberField) ui.getMenuObject("BPM")).value = bpm;
         ((MenuNumberField) ui.getMenuObject("SubBeats")).value = subBeats;
         ((MenuNumberField) ui.getMenuObject("Speed")).value = 1;
@@ -119,13 +123,18 @@ public class BeatMapper implements WindowLogic, UIListener {
                 g.stroke(0.5f);
                 g.line(0, y, g.width, y);
 
-                g.strokeWeight(2);
 
-                g.stroke(1);
                 for (BeatHandler.Beat beat : beats) {
                     float x = beat.timeStamp() - time;
 
                     if (x < -musicEditorOffsetPixels) continue;
+                    if (x < 0) {
+                        g.strokeWeight(1);
+                        g.stroke((1 + x / musicEditorOffsetPixels) * 0.6f);
+                    } else {
+                        g.strokeWeight(2);
+                        g.stroke(1);
+                    }
 
                     x = getScreenCoordinate(x);
 
@@ -191,8 +200,8 @@ public class BeatMapper implements WindowLogic, UIListener {
     }
 
     private void start() {
-        if (musicPlayer.playing)
-            musicPlayer.stop();
+        //WWif (musicPlayer.playing)
+        musicPlayer.stop();
 
         musicPlayer = new MusicPlayer(songPath + "song.wav", playbackRate);
         musicPlayer.start(musicStartTime);
@@ -202,8 +211,8 @@ public class BeatMapper implements WindowLogic, UIListener {
      * @param offset microsecond offset
      */
     private void start(long offset) {
-        if (musicPlayer.playing)
-            musicPlayer.stop();
+        //if (musicPlayer.playing)
+        musicPlayer.stop();
 
         musicStartTime = MathF.clamp(musicStartTime + offset, 0, Long.MAX_VALUE);
         start();
@@ -262,7 +271,6 @@ public class BeatMapper implements WindowLogic, UIListener {
                     case PConstants.RIGHT -> skip(-500_500);
                 }
             }
-            Debug.log((int) event.Key);
         }
     }
 
@@ -321,17 +329,24 @@ public class BeatMapper implements WindowLogic, UIListener {
             case "Save" -> {
                 try {
                     beats.save(songPath + "beats.txt");
+                    Debug.log("Saved " + new Date().toInstant().truncatedTo(ChronoUnit.SECONDS).toString().replaceAll(".*T", "").replace("Z",""));
                 } catch (IOException e) {
                     Debug.logError(e);
                 }
             }
             default -> {
                 if (caller.parent instanceof MenuObject && ((MenuObject) caller.parent).name.equals("Song selector")) {
+                    if (musicPlayer != null)
+                        stop();
+
                     songPath = "music/" + caller.name + "/";
                     musicPlayer = new MusicPlayer(songPath + "song.wav", playbackRate);
                     beats = BeatHandler.load(songPath + "beats.txt");
 
                     setBPM(beats.bpm);
+                    pixelsPerSecond = (window.WindowW - musicEditorOffsetPixels) * bps / 5; //5 beats visible on screen
+                    ((MenuNumberField) ui.getMenuObject("Pixels per Second")).value = pixelsPerSecond;
+
                     ((MenuNumberField) ui.getMenuObject("StartOffset")).value = beats.startOffset;
                     musicTime = 0;
                     musicStartTime = 0;

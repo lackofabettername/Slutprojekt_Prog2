@@ -75,7 +75,7 @@ public class MusicPlayer implements Runnable, Serializable {
         audioOutputLine = (SourceDataLine) AudioSystem.getLine(info);
         audioOutputLine.open(format);
 
-        Debug.log(format);
+        //Debug.log(format);
 
         thread = new Thread(this);
     }

@@ -32,7 +32,7 @@ public class GameLogic {
         this.ups = ups;
 
         //String file = "music/Jonathon Young - Jetpack Race";
-        String file = "music/KUURO - Trigger/";
+        String file = "music/Trigger - KUURO/";
 
         gameState = new GameState(file);
         readyPlayers = new HashSet<>();
