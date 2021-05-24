@@ -9,7 +9,11 @@ import java.lang.reflect.Field;
 import java.util.*;
 import java.util.function.BiConsumer;
 
-public class BeatHandler {//TODO replace with ArrayList or ArrayDequeue and use Collections.sort
+/**
+ * Use load() and save() when reading/writing to a file
+ */
+public class BeatHandler implements Serializable{
+    //TODO replace with ArrayList or ArrayDequeue and use Collections.sort
     private final HashMap<Byte, LinkedList<Beat>> beats;
     private final transient HashMap<Byte, Integer> beatIndex;
 
@@ -23,10 +27,6 @@ public class BeatHandler {//TODO replace with ArrayList or ArrayDequeue and use 
         this.beatIndex = new HashMap<>();
         this.bpm = bpm;
         this.startOffset = startOffset;
-
-        Debug.log("---");
-        Debug.logAll(beats, bpm, startOffset);
-        Debug.log("---");
     }
     public BeatHandler() {
         beats = new HashMap<>();
@@ -41,6 +41,13 @@ public class BeatHandler {//TODO replace with ArrayList or ArrayDequeue and use 
         beats.put((byte) 2, new LinkedList<>(temp));
 
         beatIndex = new HashMap<>();
+    }
+
+    //final transient fields are stuck as null when deserialized.
+    //Construct a new instance with non null final transient fields.
+    @Serial
+    public Object readResolve() {
+        return new BeatHandler(this.beats, this.bpm, this.startOffset);
     }
 
     //TODO: Clean up this mess
@@ -100,7 +107,7 @@ public class BeatHandler {//TODO replace with ArrayList or ArrayDequeue and use 
 
                 return new BeatHandler(beats, bpm, startOffset);
             } catch (Exception e) {
-                Debug.logWarning("There was an error while reading the beatfile");
+                Debug.logWarning("There was an error when reading the beatfile");
                 return new BeatHandler();
             }
         } catch (FileNotFoundException e) {

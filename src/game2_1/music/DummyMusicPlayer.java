@@ -35,7 +35,7 @@ public class DummyMusicPlayer extends MusicPlayer {
     public void start() {
         microStart = System.nanoTime() / 1000;
         frameStart = microToFrame(microStart);
-        playing = true;
+        status = Status.Playing;
     }
     @Override
     public void start(long microSecondTimeStamp) {
@@ -44,8 +44,8 @@ public class DummyMusicPlayer extends MusicPlayer {
         start();
     }
     @Override
-    public void start(long microSecondTimeStamp, long delayedStart) {
-        start(microSecondTimeStamp - delayedStart*1000);
+    public void start(long microSecondTimeStamp, long startDelay) {
+        start(microSecondTimeStamp - startDelay *1000);
     }
 
     @Override
@@ -62,7 +62,7 @@ public class DummyMusicPlayer extends MusicPlayer {
         return "DummyMusicPlayer{" +
                 "audioFile=" + audioFile +
                 ", playbackRate=" + playbackRate +
-                ", playing=" + playing +
+                ", status=" + status +
                 ", microSecondPos=" + getMicrosecondPosition() +
                 '}';
     }

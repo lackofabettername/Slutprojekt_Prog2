@@ -88,6 +88,8 @@ public class RenderLogic implements WindowLogic {
                             clientGameState.music = new MusicPlayer(clientGameState.songPath + "song.wav", 1);
 
                             long startDelay = Long.parseLong(command.substring(11));
+                            startDelay -= System.currentTimeMillis() - packet.timeStamp();
+                            Debug.log(startDelay);
                             clientGameState.music.start(0, startDelay);
                         }
                     }
@@ -217,7 +219,7 @@ public class RenderLogic implements WindowLogic {
 
     @Override
     public void onExit() {
-        currentGameState.music.stop();
+        clientGameState.music.stop();
         client.close();
     }
 }

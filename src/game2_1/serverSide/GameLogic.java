@@ -93,6 +93,9 @@ public class GameLogic {
 
                                 if (gameState.readyPlayers == gameState.players.size())
                                     gameState.gameRunning = true;
+
+                                server.queue(new NetPacket(NetPacketType.ServerCommand, 0, "Start Music" + (System.currentTimeMillis() + 500)));
+                                gameState.music.start(0, 500);
                             }
                         } else if (message.startsWith("Selected")) {
                             gameState.songPath = Debug.log("music/" + message.substring(8) + "/");
@@ -112,13 +115,6 @@ public class GameLogic {
     }
 
     private void handleClientInput(byte id, InputEvent event) {
-        if (event instanceof KeyEvent keyEvent) {
-            if (keyEvent.Type == KeyEventType.KeyPressed && keyEvent.Key == 'k') {
-                server.queue(new NetPacket(NetPacketType.ServerCommand, 0, "Start Music" + (System.currentTimeMillis() + 500)));
-                gameState.music.start(0, 500);
-            }
-        }
-
         gameState.players.get(id).handleEvent(event);
     }
 

@@ -130,6 +130,32 @@ public class GameState implements Serializable {
         //endregion
 
         //region Song path
+        if (!songPath.equals(target.songPath)) {
+            if (music != null && music.getStatus() != MusicPlayer.Status.Ready) {
+                if (!music.Waiting()) {
+                    throw new IllegalStateException("This should not happen");
+                    //TODO: disconnect client instead of crashing
+                }
+
+                Debug.log(Thread.getAllStackTraces().toString().replaceAll(", ", ",\n"));
+
+                long startDelay = music.getStartDelay();
+                music.stop();
+                try {
+                    music.getThread().join();
+                } catch (InterruptedException e) {
+                    Debug.logError(e);
+                    throw new IllegalStateException("This should not happen");
+                    //TODO: disconnect client instead of crashing
+                }
+                // while (!music.Stopped())
+               //     ;
+                    //Thread.onSpinWait();
+
+                music = new MusicPlayer(target.songPath + "song.wav", music.playbackRate);
+                music.start(0, startDelay);
+            }
+        }
         songPath = target.songPath;
         //endregion
 

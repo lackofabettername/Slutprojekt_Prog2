@@ -174,7 +174,7 @@ public class BeatMapper implements WindowLogic, UIListener {
      * @return songtime in milliseconds
      */
     private float getTime() {
-        return (musicPlayer.playing ?
+        return (musicPlayer.playing() ?
                 musicPlayer.getMicrosecondPosition() :
                 musicTime
         ) / 1000f + beats.startOffset;
@@ -247,7 +247,7 @@ public class BeatMapper implements WindowLogic, UIListener {
      * @param amount microseconds skipped
      */
     private void skip(long amount) {
-        if (musicPlayer.playing) {
+        if (musicPlayer.playing()) {
             pause();
             start(amount);
         } else {
@@ -279,7 +279,7 @@ public class BeatMapper implements WindowLogic, UIListener {
         if (event.Type == KeyEventType.KeyPressed) {
             if (!event.Coded) {
                 if (event.Key == ' ') {
-                    if (musicPlayer.playing)
+                    if (musicPlayer.playing())
                         stop();
                     else
                         start();

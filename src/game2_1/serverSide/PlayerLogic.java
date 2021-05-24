@@ -146,7 +146,7 @@ public class PlayerLogic implements Serializable {
     private void shoot() {
         Projectile toAdd;
 
-        if (parent.music.playing) {
+        if (parent.music.playing()) {
             toAdd = new Projectile(
                     id,
                     parent.beats.getStrength(

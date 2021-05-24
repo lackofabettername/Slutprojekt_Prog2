@@ -9,7 +9,7 @@ import java.io.*;
 public class MusicPlayer implements Runnable, Serializable {
 
     private transient Thread thread;
-    private transient long delayedStartTimeStamp;
+    private transient long delayedStart;
 
     // size of the byte buffer used to read/write the audio stream
     private static final int BUFFER_SIZE = 2048;
@@ -26,9 +26,10 @@ public class MusicPlayer implements Runnable, Serializable {
     private transient float t;
     private transient int lastFrame, frame;
 
-    public transient volatile boolean playing;
-    transient long framePos, microSecondPos;
-    transient long frameOffset, microSecondOffset;
+    protected transient volatile Status status;
+    private transient long framePos, microSecondPos;
+
+    protected transient long frameOffset, microSecondOffset;
 
 
     //region Constructors
@@ -77,7 +78,9 @@ public class MusicPlayer implements Runnable, Serializable {
 
         //Debug.log(format);
 
-        thread = new Thread(this);
+        thread = new Thread(this, "MusicPlayer " + audioFile);
+
+        status = Status.Ready;
     }
 
     @Serial
@@ -92,40 +95,45 @@ public class MusicPlayer implements Runnable, Serializable {
         try {
             audioOutputLine.start();
 
-            while (System.currentTimeMillis() < delayedStartTimeStamp) {
+            while (status != Status.Stopping && System.currentTimeMillis() < delayedStart) {
+                status = Status.Waiting;
+
                 Thread.onSpinWait();
                 try {
+                    //noinspection BusyWait
                     Thread.sleep(10);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                } catch (InterruptedException ignored) {
                 }
             }
 
-            //Debug.log("Playback started.");
-            playing = true;
+            if (Waiting() || Ready()) {
+                //Debug.log("Playback started.");
+                status = Status.Playing;
 
-            int bytesRead;
-            while (playing && (bytesRead = readFrame()) != -1) {
-                audioOutputLine.write(bytesBuffer, 0, bytesRead);
+                int bytesRead;
+                while (playing() && (bytesRead = readFrame()) != -1) {
+                    audioOutputLine.write(bytesBuffer, 0, bytesRead);
 
-                while (audioOutputLine.getBufferSize() - audioOutputLine.available() > BUFFER_SIZE * 2)
-                    Thread.onSpinWait();
+                    while (audioOutputLine.getBufferSize() - audioOutputLine.available() > BUFFER_SIZE * 2)
+                        Thread.onSpinWait();
 
-                while (audioOutputLine.available() < BUFFER_SIZE)
-                    Thread.onSpinWait();
+                    while (audioOutputLine.available() < BUFFER_SIZE)
+                        Thread.onSpinWait();
+                }
+
+                audioOutputLine.drain();
+
+                audioOutputLine.close();
+                audioInputStream.close();
+
+                //Debug.log("Playback completed.");
             }
-
-            audioOutputLine.drain();
-            playing = false;
-
-            audioOutputLine.close();
-            audioInputStream.close();
-
-            //Debug.log("Playback completed.");
         } catch (IOException e) {
             Debug.logWarning("Error playing the audio file.");
             Debug.logError(e);
         }
+
+        status = Status.Stopped;
     }
 
     public void start() {
@@ -142,21 +150,32 @@ public class MusicPlayer implements Runnable, Serializable {
         }
         start();
     }
-    public void start(long microSecondTimeStamp, long delayedStart) {
-        delayedStartTimeStamp = delayedStart;
+    public void start(long microSecondTimeStamp, long startDelay) {
+        this.delayedStart = startDelay;
         start(microSecondTimeStamp);
     }
 
     public void stop() {
-        playing = false;
+        status = Status.Stopping;
+        thread.interrupt();
+    }
+
+    public Thread getThread() {
+        return thread;
     }
 
     public long getFrame() {
-        return frameOffset + (playing ? (framePos = audioOutputLine.getLongFramePosition()) : framePos);
+        return frameOffset + (playing() ?
+                (framePos = audioOutputLine.getLongFramePosition()) :
+                framePos
+        );
     }
 
     public long getMicrosecondPosition() {
-        return microSecondOffset + (playing ? (microSecondPos = audioOutputLine.getMicrosecondPosition()) : microSecondPos);
+        return microSecondOffset + (playing() ?
+                (microSecondPos = audioOutputLine.getMicrosecondPosition()) :
+                microSecondPos
+        );
     }
 
     private int readFrame() throws IOException {
@@ -211,13 +230,64 @@ public class MusicPlayer implements Runnable, Serializable {
         return (sampleA + (sampleB << 16));
     }
 
+    public long getStartDelay() {
+        return delayedStart;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public boolean Ready() {
+        return status == Status.Ready;
+    }
+    public boolean Waiting() {
+        return status == Status.Waiting;
+    }
+    public boolean playing() {
+        return status == Status.Playing;
+    }
+    public boolean Stopping() {
+        return status == Status.Stopping;
+    }
+    public boolean Stopped() {
+        return status == Status.Stopped;
+    }
+
+    public enum Status {
+        /**
+         * The Musicplayer has loaded all resources and is ready to play
+         */
+        Ready,
+
+        /**
+         * The Musicplayer has been started with a delayed start and is waiting
+         */
+        Waiting,
+
+        /**
+         * The Musicplayer is playing
+         */
+        Playing,
+
+        /**
+         * The Musicplayer is stopping and can not start again
+         */
+        Stopping,
+
+        /**
+         * The Musicplayer has stopped and can not start again
+         */
+        Stopped
+    }
+
     @Override
     public String toString() {
         return "MusicPlayer{" +
                 "audioFile=" + audioFile +
                 ", format=" + format +
                 ", playbackRate=" + playbackRate +
-                ", playing=" + playing +
+                ", status=" + status +
                 ", microSecondPos=" + getMicrosecondPosition() +
                 '}';
     }
