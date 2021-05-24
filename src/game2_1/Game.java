@@ -61,10 +61,10 @@ public class Game {
 
         Debug.logLine();
 
-        while (true) {
+        while (window.running) {
             try {
                 synchronized (this) {
-                    wait(500);
+                    Thread.sleep(500);
                 }
 
                 if (server != null) {

@@ -4,6 +4,7 @@ import ch.bildspur.postfx.builder.PostFX;
 import game2_1.Application;
 import game2_1.GameState;
 import game2_1.WindowLogic;
+import game2_1.clientSide.shaders.BloomPass;
 import game2_1.clientSide.shaders.BlurPass;
 import game2_1.events.KeyEvent;
 import game2_1.events.MouseEvent;
@@ -17,6 +18,7 @@ import processing.core.PGraphics;
 
 import game2_1.serverSide.PlayerLogic;
 import utility.Debug;
+import utility.NormalizedMath;
 
 import java.util.Objects;
 import java.util.Queue;
@@ -38,8 +40,7 @@ public class RenderLogic implements WindowLogic {
     private final Application parent;
     //region PostFX
     private PostFX postFX;
-    private BlurPass blurPassX;
-    private BlurPass blurPassY;
+    private BloomPass bloomPass;
     //endregion
 
     public RenderLogic(Application parent) {
@@ -78,15 +79,16 @@ public class RenderLogic implements WindowLogic {
                         player = clientGameState.players.get(client.id);
 
                         clientGameState.music = new MusicPlayer(clientGameState.songPath + "song.wav", 1);
-                        //clientGameState.beats = BeatHandler.load(clientGameState.songPath + ".txt");
                         for (byte id : clientGameState.players.keySet())
                             clientGameState.players.compute(id, (ignored, player) -> new Player(Objects.requireNonNull(player), id));
                     }
                     case ServerCommand -> {
                         String command = (String) packet.object();
                         if (command.startsWith("Start Music")) {
-                            long timeStamp = Long.parseLong(command.substring(11));
-                            clientGameState.music.start(0, timeStamp);
+                            clientGameState.music = new MusicPlayer(clientGameState.songPath + "song.wav", 1);
+
+                            long startDelay = Long.parseLong(command.substring(11));
+                            clientGameState.music.start(0, startDelay);
                         }
                     }
                     case Empty -> {
@@ -104,8 +106,7 @@ public class RenderLogic implements WindowLogic {
         if (postFX == null) {
             var temp = parent.getApplet();
             postFX = new PostFX(temp);
-            blurPassX = new BlurPass(temp, false);
-            blurPassY = new BlurPass(temp, true);
+            bloomPass = new BloomPass(temp);
         }
 
         ++frameCount;
@@ -143,19 +144,24 @@ public class RenderLogic implements WindowLogic {
 
         clientGameState.lerp(0.8f, serverGameState); //fixme
 
-        //region Show
+        //region Projectiles
         clientGameState.players.forEach((id, player) -> ((Player) player).render(g));
         clientGameState.projectiles.forEach(projectile -> {
             if (projectile != null) projectile.render(g);
         });
+        //endregion
 
+        //region Beats
         g.push();
+        final float[] highestBeatStrength = {0};
         clientGameState.beats.forEach((type, queue) -> {
             if (type != player.weaponType)
                 return;
 
             long time = clientGameState.music.getMicrosecondPosition() / 1000;//millis
             time += clientGameState.beats.startOffset;
+
+            highestBeatStrength[0] = Math.max(highestBeatStrength[0], clientGameState.beats.getStrength(type, time));
 
             g.stroke(1);
             int i = 0;
@@ -172,8 +178,12 @@ public class RenderLogic implements WindowLogic {
                 g.line(g.width / 2f - x, g.height - 12, g.width / 2f - x, g.height - 2);
             }
         });
-        g.pop();
 
+        bloomPass.setStrength(NormalizedMath.smoothStop2(highestBeatStrength[0]));
+        g.pop();
+        //endregion
+
+        //region Score
         final StringBuilder scoreText = new StringBuilder();
         clientGameState.scores.forEach((playerId, score) ->
                 scoreText.append(String.format("%d: %d\n", playerId, score))
@@ -184,8 +194,7 @@ public class RenderLogic implements WindowLogic {
 
         try {
             postFX.render()
-                    .custom(blurPassX)
-                    .custom(blurPassY)
+                    .custom(bloomPass)
                     .compose();
         } catch (Exception e) {
             Debug.logError(e.toString());
@@ -196,8 +205,7 @@ public class RenderLogic implements WindowLogic {
     @Override
     public void onKeyEvent(KeyEvent event) {
         if (event.Key == 'u') {
-            blurPassX.reload();
-            blurPassY.reload();
+            bloomPass.reload();
         }
 
         client.queue(event);
@@ -207,4 +215,9 @@ public class RenderLogic implements WindowLogic {
         client.queue(event);
     }
 
+    @Override
+    public void onExit() {
+        currentGameState.music.stop();
+        client.close();
+    }
 }

@@ -1,8 +1,8 @@
 package game2_1.clientSide.shaders;
 
 import ch.bildspur.postfx.Supervisor;
-import ch.bildspur.postfx.pass.BasePass;
 import ch.bildspur.postfx.pass.Pass;
+import utility.Debug;
 
 import processing.core.PApplet;
 import processing.core.PGraphics;
@@ -11,12 +11,15 @@ import processing.opengl.PShader;
 public class BlurPass implements Pass {
     private final PApplet parent;
     PShader shader;
-    private boolean dir;
 
-    public BlurPass(PApplet parent, boolean dir) {
+    private boolean vertical;
+    private float strength;
+
+    public BlurPass(PApplet parent, boolean vertical) {
         this.parent = parent;
-        this.dir = dir;
+        this.vertical = vertical;
         reload();
+        setStrength(1);
     }
 
     public void reload() {
@@ -25,19 +28,21 @@ public class BlurPass implements Pass {
         ////noinspection SuspiciousNameCombination
         //shader.set("textureH", parent.height);
 
-        shader.set("canvasW", (float) parent.width);
-        shader.set("canvasH", (float) parent.height);
-        shader.set("dir", dir ? 1 : 0);
+        shader.set("vertical", vertical ? 1 : 0);
     }
 
-    public void setDir(boolean dir) {
-        this.dir = dir;
-        shader.set("dir", dir ? 1 : 0);
+    public void setVertical(boolean vertical) {
+        this.vertical = vertical;
+    }
+
+    public void setStrength(float strength) {
+        this.strength = strength;
     }
 
     @Override
     public void prepare(Supervisor supervisor) {
-        // set parameters of the shader if needed
+        shader.set("vertical", vertical ? 1 : 0);
+        shader.set("strength", strength);
     }
 
     @Override

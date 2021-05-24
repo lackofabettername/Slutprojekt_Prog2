@@ -148,4 +148,9 @@ public class SongMenu implements WindowLogic, UIListener {
             ));
         }
     }
+
+    @Override
+    public void onExit() {
+
+    }
 }

@@ -2,12 +2,14 @@ package game2_1.music;
 
 import utility.Debug;
 import utility.Utility;
+import utility.style.Foreground;
 
 import java.io.*;
+import java.lang.reflect.Field;
 import java.util.*;
 import java.util.function.BiConsumer;
 
-public class BeatHandler implements Serializable {//TODO replace with ArrayList or ArrayDequeue and use Collections.sort
+public class BeatHandler {//TODO replace with ArrayList or ArrayDequeue and use Collections.sort
     private final HashMap<Byte, LinkedList<Beat>> beats;
     private final transient HashMap<Byte, Integer> beatIndex;
 
@@ -21,6 +23,10 @@ public class BeatHandler implements Serializable {//TODO replace with ArrayList 
         this.beatIndex = new HashMap<>();
         this.bpm = bpm;
         this.startOffset = startOffset;
+
+        Debug.log("---");
+        Debug.logAll(beats, bpm, startOffset);
+        Debug.log("---");
     }
     public BeatHandler() {
         beats = new HashMap<>();
@@ -37,12 +43,67 @@ public class BeatHandler implements Serializable {//TODO replace with ArrayList 
         beatIndex = new HashMap<>();
     }
 
+    //TODO: Clean up this mess
     public static BeatHandler load(String filePath) {
         try {
-            FileInputStream in = new FileInputStream(filePath);
-            return Utility.deserialize(in.readAllBytes());
-        } catch (IOException | ClassCastException | ClassNotFoundException e) {
-            //Debug.logError(e);
+            Scanner in = new Scanner(new File(filePath));
+
+            try {
+                int state = 0;
+
+                HashMap<Byte, LinkedList<Beat>> beats = new HashMap<>();
+                float bpm = -1;
+                int startOffset = -1;
+
+                float strength;
+                float val = -1;
+                long timeStamp = 0;
+                LinkedList<Beat> queue = new LinkedList<>();
+                for (String data = in.next(); in.hasNext(); data = in.next()) {
+                    if (data.equals("{"))
+                        continue;
+
+                    switch (state) {
+                        case 0 -> {
+                            if (val == -1) {
+                                val = Float.parseFloat(data);
+                            } else {
+                                if (data.equals("=")) {
+                                    queue = new LinkedList<>();
+                                    state = 1;
+                                } else {
+                                    bpm = val;
+                                    startOffset = Integer.parseInt(data);
+                                    state = 3;
+                                }
+                            }
+                        }
+                        case 1 -> {
+                            if (data.equals("}")) {
+                                beats.put((byte) val, queue);
+                                state = 0;
+                                val = -1;
+                            } else {
+                                timeStamp = Long.parseLong(data.replaceAll("\\D", ""));
+                                state = 2;
+                            }
+                        }
+                        case 2 -> {
+                            strength = Float.parseFloat(data.replaceAll("[^\\d^.]", ""));
+                            Beat beat = new Beat(timeStamp, strength);
+
+                            queue.add(beat);
+                            state = 1;
+                        }
+                    }
+                }
+
+                return new BeatHandler(beats, bpm, startOffset);
+            } catch (Exception e) {
+                Debug.logWarning("There was an error while reading the beatfile");
+                return new BeatHandler();
+            }
+        } catch (FileNotFoundException e) {
             Debug.logWarning("No beat file found");
             Debug.logWarning("\t\"" + filePath + "\"");
 
@@ -51,16 +112,33 @@ public class BeatHandler implements Serializable {//TODO replace with ArrayList 
     }
 
     public void save(String filePath) throws IOException {
-        FileOutputStream out = new FileOutputStream(filePath);
         beats.forEach((weaponType, list) -> Collections.sort(list));
-        out.write(Utility.serialize(this));
-    }
 
-    //final transient fields are stuck as null when deserialized.
-    //Construct a new instance with non null final transient fields.
-    @Serial
-    public Object readResolve() {
-        return new BeatHandler(this.beats, this.bpm, this.startOffset);
+        File file = new File(filePath);
+        file.createNewFile();
+        var out = new PrintWriter(new BufferedOutputStream(new FileOutputStream(filePath)));
+        //out.print(beats.toString());
+
+        out.println("{");
+        beats.forEach((type, queue) -> {
+            out.print("\t");
+            out.println(type + " = {");
+
+            for (Beat beat : queue) {
+                out.print("\t\t");
+                out.println(beat);
+            }
+
+            out.print("\t");
+            out.println("}");
+        });
+
+        out.println("\t" + bpm);
+        out.println("\t" + startOffset);
+        out.println("}");
+
+        out.flush();
+        out.close();
     }
     //endregion
 
@@ -110,6 +188,11 @@ public class BeatHandler implements Serializable {//TODO replace with ArrayList 
         return beats.size();
     }
 
+    /**
+     * @param weaponType
+     * @param timeStamp
+     * @return The strength in the range of 0 to 1
+     */
     public float getStrength(byte weaponType, long timeStamp) {
         LinkedList<Beat> beats = this.beats.get(weaponType);
 
@@ -156,12 +239,32 @@ public class BeatHandler implements Serializable {//TODO replace with ArrayList 
         return strength;
     }
 
-
-
     public record Beat(long timeStamp, float strength) implements Serializable, Comparable<Beat> {
         @Override
         public int compareTo(Beat o) {
             return (int) (timeStamp() - o.timeStamp());
         }
+    }
+
+
+    @Override
+    public boolean equals(Object o) {//Autogenerated
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        BeatHandler that = (BeatHandler) o;
+
+        if (Float.compare(that.bpm, bpm) != 0) return false;
+        if (startOffset != that.startOffset) return false;
+        if (!beats.equals(that.beats)) return false;
+        return Objects.equals(beatIndex, that.beatIndex);
+    }
+    @Override
+    public int hashCode() {//Autogenerated
+        int result = beats.hashCode();
+        result = 31 * result + (beatIndex != null ? beatIndex.hashCode() : 0);
+        result = 31 * result + (bpm != +0.0f ? Float.floatToIntBits(bpm) : 0);
+        result = 31 * result + startOffset;
+        return result;
     }
 }

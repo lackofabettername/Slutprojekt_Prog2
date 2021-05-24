@@ -20,6 +20,11 @@ import java.util.Date;
 
 public class BeatMapper implements WindowLogic, UIListener {
     private final Application window;
+    /**
+     * Saves the hash of the beats when saved. If the hash changes,
+     * this is set to null and marks a change which should be saved in case of crash.
+     */
+    private Integer saved;
 
     private final UI ui;
 
@@ -251,6 +256,20 @@ public class BeatMapper implements WindowLogic, UIListener {
         }
     }
 
+    private void save(boolean auto) {
+        try {
+            String time = new Date().toInstant().truncatedTo(ChronoUnit.SECONDS)
+                    .toString().replace("T", " ").replace("Z", "");
+
+            Debug.log(time);
+            beats.save(songPath + "beats" + (auto ? " AUTOSAVE " + time.replace(":", ".") : "") + ".txt");
+            Debug.log("Saved " + time.replaceAll(".* ", ""));
+
+            saved = beats.hashCode();
+        } catch (IOException e) {
+            Debug.logError(e);
+        }
+    }
     //region Events
     @Override
     public void onKeyEvent(KeyEvent event) {
@@ -272,6 +291,9 @@ public class BeatMapper implements WindowLogic, UIListener {
                 }
             }
         }
+
+        if (beats != null && saved != null && saved != beats.hashCode())
+            saved = null;
     }
 
     @Override
@@ -292,6 +314,9 @@ public class BeatMapper implements WindowLogic, UIListener {
         } else if (event.Type == MouseEventType.MouseWheel) {
             skip(event.scrollWheel() * -100_000L);
         }
+
+        if (beats != null && saved != null && saved != beats.hashCode())
+            saved = null;
     }
 
     @Override
@@ -304,10 +329,7 @@ public class BeatMapper implements WindowLogic, UIListener {
                     Debug.logError(e);
                 }
             }
-            case "StartOffset" -> {
-                beats.startOffset = (int) ((MenuNumberField) caller).value;
-                // ((MenuNumberField) ui.getMenuObject("StartOffset")).value = beats.startOffset;
-            }
+            case "StartOffset" -> beats.startOffset = (int) ((MenuNumberField) caller).value;
             case "SubBeats" -> {
                 subBeats = (int) ((MenuNumberField) caller).value;
                 subBeats = MathF.clamp(subBeats, 1, 16);
@@ -326,14 +348,7 @@ public class BeatMapper implements WindowLogic, UIListener {
             case "Start" -> start();
             case "Pause" -> pause();
             case "Stop" -> stop();
-            case "Save" -> {
-                try {
-                    beats.save(songPath + "beats.txt");
-                    Debug.log("Saved " + new Date().toInstant().truncatedTo(ChronoUnit.SECONDS).toString().replaceAll(".*T", "").replace("Z",""));
-                } catch (IOException e) {
-                    Debug.logError(e);
-                }
-            }
+            case "Save" -> save(false);
             default -> {
                 if (caller.parent instanceof MenuObject && ((MenuObject) caller.parent).name.equals("Song selector")) {
                     if (musicPlayer != null)
@@ -342,6 +357,7 @@ public class BeatMapper implements WindowLogic, UIListener {
                     songPath = "music/" + caller.name + "/";
                     musicPlayer = new MusicPlayer(songPath + "song.wav", playbackRate);
                     beats = BeatHandler.load(songPath + "beats.txt");
+                    saved = beats.hashCode();
 
                     setBPM(beats.bpm);
                     pixelsPerSecond = (window.WindowW - musicEditorOffsetPixels) * bps / 5; //5 beats visible on screen
@@ -357,6 +373,18 @@ public class BeatMapper implements WindowLogic, UIListener {
                 }
             }
         }
+
+        if (beats != null && saved != null && saved != beats.hashCode())
+            saved = null;
     }
     //endregion
+
+
+    @Override
+    public void onExit() {
+        if (musicPlayer != null)
+            musicPlayer.stop();
+        if (beats != null && saved == null)
+            save(true);
+    }
 }

@@ -10,4 +10,6 @@ public interface WindowLogic {
 
     void onKeyEvent(KeyEvent event);
     void onMouseEvent(MouseEvent event);
+
+    void onExit();
 }

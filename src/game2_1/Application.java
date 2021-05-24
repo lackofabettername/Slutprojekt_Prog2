@@ -12,6 +12,8 @@ public class Application {
     public final int WindowW;
     public final int WindowH;
 
+    public volatile boolean running;
+
     private final PAppletImpl window;
     private final Thread windowThread;
 
@@ -30,22 +32,8 @@ public class Application {
         windowThread.start();
         while (window.g == null)
             Thread.onSpinWait();
-//        size(600, 600);
-//
-//        currentGameState = new GameState();
-//        currentGameState.players.add(new Player());
-//
-//        try {
-//            client = new Client("Client Thread", InetAddress.getByName("localhost"), 0);
-//        } catch (SocketException | UnknownHostException e) {
-//            Debug.logError(e);
-//            exit();
-//        }
-//
-//        client.Start();
-//
-//
-//        //        textAlign(LEFT, TOP);
+
+        running = true;
     }
 
     public void setLogic(WindowLogic logic) {
@@ -98,6 +86,10 @@ public class Application {
         @Override
         public void dispose() { // Called before PApplet closes, can be used to detect crashes.
             Debug.closeLog();
+            Debug.log("asddsadsa");
+            currentLogic.onExit();
+
+            running = false;
         }
 
 
@@ -110,7 +102,6 @@ public class Application {
             if (currentLogic != null)
                 currentLogic.onMouseEvent(event);
         }
-
 
         @Override
         public void keyPressed(processing.event.KeyEvent event) {

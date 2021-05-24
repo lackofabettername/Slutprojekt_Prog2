@@ -165,4 +165,10 @@ public class MainMenu implements WindowLogic, UIListener {
             parent.window.setLogic(parent.songMapper);
         }
     }
+
+    @Override
+    public void onExit() {
+        parent.closeClient();
+        parent.closeServer();
+    }
 }

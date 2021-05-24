@@ -21,7 +21,7 @@ public class GameState implements Serializable {
     public byte readyPlayers;
 
     public transient MusicPlayer music;
-    public BeatHandler beats;
+    public BeatHandler beats;//Todo: only send when it changes, to save bandwidth
     public String songPath;
 
     public float updateCount;
@@ -62,10 +62,6 @@ public class GameState implements Serializable {
      */
     public static GameState lerp(float t, GameState previous, GameState current) {
         GameState temp = new GameState();
-
-        //region Music
-        temp.music = previous.music;
-        //endregion
 
         //region Beats
         temp.beats = previous.beats;
@@ -129,6 +125,14 @@ public class GameState implements Serializable {
     }
 
     public void lerp(float t, GameState target) {
+        //region Beats
+        beats = target.beats;
+        //endregion
+
+        //region Song path
+        songPath = target.songPath;
+        //endregion
+
         //region FrameCount
         updateCount = MathF.lerp(t, updateCount, target.updateCount);
         //endregion
