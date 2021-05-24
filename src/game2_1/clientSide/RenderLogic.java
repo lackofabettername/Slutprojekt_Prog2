@@ -1,8 +1,10 @@
 package game2_1.clientSide;
 
+import ch.bildspur.postfx.builder.PostFX;
 import game2_1.Application;
 import game2_1.GameState;
 import game2_1.WindowLogic;
+import game2_1.clientSide.shaders.BlurPass;
 import game2_1.events.KeyEvent;
 import game2_1.events.MouseEvent;
 import game2_1.internet.Client;
@@ -34,6 +36,11 @@ public class RenderLogic implements WindowLogic {
     public Client client;
 
     private final Application parent;
+    //region PostFX
+    private PostFX postFX;
+    private BlurPass blurPassX;
+    private BlurPass blurPassY;
+    //endregion
 
     public RenderLogic(Application parent) {
         this.parent = parent;
@@ -94,6 +101,13 @@ public class RenderLogic implements WindowLogic {
 
     @Override
     public void render(PGraphics g) {
+        if (postFX == null) {
+            var temp = parent.getApplet();
+            postFX = new PostFX(temp);
+            blurPassX = new BlurPass(temp, false);
+            blurPassY = new BlurPass(temp, true);
+        }
+
         ++frameCount;
 
         handleNetPackets();
@@ -109,8 +123,10 @@ public class RenderLogic implements WindowLogic {
         //t = 1;
         GameState serverGameState = GameState.lerp(t, previousGameState, currentGameState);
 
-        //region Debug
+        //region Render
         g.background(0);
+
+        //region Debug
         g.fill(0);
         g.rect(g.width / 2f - 100, g.height / 2f - 50, 200, 100);
         g.fill(1);
@@ -164,10 +180,26 @@ public class RenderLogic implements WindowLogic {
         );
         g.text(scoreText.toString().trim(), parent.WindowW - 100, 0, 100, 200);
         //endregion
+
+
+        try {
+            postFX.render()
+                    .custom(blurPassX)
+                    .custom(blurPassY)
+                    .compose();
+        } catch (Exception e) {
+            Debug.logError(e.toString());
+        }
+        //endregion
     }
 
     @Override
     public void onKeyEvent(KeyEvent event) {
+        if (event.Key == 'u') {
+            blurPassX.reload();
+            blurPassY.reload();
+        }
+
         client.queue(event);
     }
     @Override

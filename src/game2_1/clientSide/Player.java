@@ -55,10 +55,10 @@ public class Player extends PlayerLogic {
     public void render(PGraphics g) {
         g.push();
 
-        if (particles == null)
-            createParticleSystem();
-        particles.update();
-        particles.render(g);
+        //if (particles == null)
+        //    createParticleSystem();
+        //particles.update();
+        //particles.render(g);
 
         g.stroke(col.getRed(), col.getGreen(), col.getBlue());
         g.strokeWeight(3);

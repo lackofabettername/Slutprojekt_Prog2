@@ -11,5 +11,6 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="core" level="application" />
+    <orderEntry type="library" name="PostFX" level="project" />
   </component>
 </module>

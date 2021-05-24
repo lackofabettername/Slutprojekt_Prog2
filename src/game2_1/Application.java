@@ -60,6 +60,10 @@ public class Application {
         return window.createGraphics(width, height);
     }
 
+    public PApplet getApplet() {
+        return window;
+    }
+
     private class PAppletImpl extends PApplet implements Runnable {
 
         @Override
@@ -69,7 +73,7 @@ public class Application {
 
         @Override
         public void settings() {
-            size(WindowW, WindowH);
+            size(WindowW, WindowH, "processing.opengl.PGraphics2D");
             registerMethod("dispose", this);
         }
 
@@ -164,7 +168,12 @@ public class Application {
         //endregion
 
         private int getMouseButton(processing.event.MouseEvent event) {
-            return ((java.awt.event.MouseEvent) event.getNative()).getButton();
+            if (event.getNative() instanceof java.awt.event.MouseEvent mouseEvent) //Standard renderer
+                return mouseEvent.getButton();
+            else if (event.getNative() instanceof com.jogamp.newt.event.MouseEvent mouseEvent) //processing.opengl.PGraphics2D renderer
+                return mouseEvent.getButton();
+            else
+                return -1;
         }
     }
 }

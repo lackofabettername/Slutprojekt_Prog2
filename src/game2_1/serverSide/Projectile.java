@@ -47,7 +47,7 @@ public class Projectile implements Serializable {
     public void render(PGraphics g) {
         g.push();
 
-        g.stroke(255, 0, 0);
+        g.stroke(1, 0, 0);
         g.noFill();
 
         if (strength != 0)

@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="PostFX">
+    <CLASSES>
+      <root url="file://$PROJECT_DIR$/../../Libraries/PostFX/library" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+    <jarDirectory url="file://$PROJECT_DIR$/../../Libraries/PostFX/library" recursive="false" />
+  </library>
+</component>

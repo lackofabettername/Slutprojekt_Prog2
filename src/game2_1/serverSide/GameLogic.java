@@ -171,7 +171,7 @@ public class GameLogic {
             );
         } catch (Exception e) {
             if (clientID == 100) {
-                Debug.logError(e);
+                Debug.logError("Suppressed " + e);
                 Debug.logWarning("Remove this try catch when the dummy player is removed");
             } else
                 throw e;
