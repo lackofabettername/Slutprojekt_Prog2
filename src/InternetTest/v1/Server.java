@@ -12,10 +12,12 @@ public class Server implements Runnable {
 
     Thread thread;
 
-    Server(int localPort) throws SocketException {
+    Server(int localPort) throws SocketException, UnknownHostException {
         socket = new DatagramSocket(localPort);
         clients = new HashSet<>();
         thread = new Thread(this);
+
+        System.out.println("Server Address: " + InetAddress.getLocalHost().toString());
     }
 
     void start() {

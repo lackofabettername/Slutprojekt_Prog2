@@ -9,11 +9,13 @@ public class Client implements Runnable {
     DatagramSocket socket;
     Thread thread;
 
-    Client(int localPort, InetAddress remoteAddress, int remotePort) throws SocketException {
+    Client(int localPort, InetAddress remoteAddress, int remotePort) throws SocketException, UnknownHostException {
         socket = new DatagramSocket(localPort);
         socket.connect(remoteAddress, remotePort);
 
         thread = new Thread(this);
+
+        System.out.println("Client Address: " + InetAddress.getLocalHost().toString());
     }
 
     void start() {
