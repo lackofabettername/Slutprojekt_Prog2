@@ -10,17 +10,17 @@ import java.net.SocketException;
 public class Client extends AbstractClient<NetPacket> {
     public volatile byte id;
 
-    public Client(String name, InetAddress address, int port) throws SocketException {
-        super(name, address, port);
+    public Client(InetAddress address) throws SocketException {
+        super("Client", address);
         id = -1;
     }
 
-    public void queue(InputEvent event) {
+    public void send(InputEvent event) {
         if (id == -1) {
             Debug.logWarning("id has not been assigned");
             return;
         }
         //if (id == -1) throw new IllegalStateException("id has not been assigned");
-        queue(new NetPacket(NetPacketType.ClientInput, id, event));
+        send(new NetPacket(NetPacketType.ClientInput, id, event));
     }
 }

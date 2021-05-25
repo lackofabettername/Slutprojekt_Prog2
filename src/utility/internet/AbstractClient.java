@@ -12,15 +12,17 @@ import java.util.Scanner;
 
 public abstract class AbstractClient<T extends Serializable> extends IO<T> {
 
-    public AbstractClient(String name, InetAddress address, int port) throws SocketException {
-        super(name, address, port);
+    public AbstractClient(String name, int localPort, InetAddress remoteAddress, int remotePort) throws SocketException {
+        super(name, localPort, remoteAddress, remotePort);
+    }
+    public AbstractClient(String name, InetAddress remoteAddress) throws SocketException {
+        this(name, ClientPort, remoteAddress, ServerPort);
     }
 
     public static void main(String[] args) throws SocketException {
         Scanner in = new Scanner(System.in);
 
         InetAddress address = null;
-        int port = -1;
         while (address == null) {
             System.out.print("address > ");
 
@@ -31,17 +33,7 @@ public abstract class AbstractClient<T extends Serializable> extends IO<T> {
             }
         }
 
-        while (port == -1) {
-            System.out.print("port    > ");
-
-            try {
-                port = Integer.parseInt(in.nextLine());
-            } catch (NumberFormatException e) {
-                Debug.logError(e);
-            }
-        }
-
-        AbstractClient<String> client = new AbstractClient<>("AbstractClient", address, port) {
+        AbstractClient<String> client = new AbstractClient<>("AbstractClient", address) {
         };
 
         client.thread.start();
@@ -63,10 +55,7 @@ public abstract class AbstractClient<T extends Serializable> extends IO<T> {
         frame.add(send);
         frame.add(new JScrollPane(output));
 
-        send.addActionListener(e -> {
-            client.queue(input.getText().trim());
-            client.sendQueued();
-        });
+        send.addActionListener(e -> client.send(input.getText().trim()));
 
         frame.pack();
         frame.setVisible(true);
@@ -84,8 +73,7 @@ public abstract class AbstractClient<T extends Serializable> extends IO<T> {
         int val = in.nextInt();
         Debug.log("Sending " + val + " packets");
         for (int i = 0; i < val; ++i) {
-            client.queue("debug " + i);
-            client.sendQueued();
+            client.send("debug " + i);
 
             try {
                 Thread.sleep(250);

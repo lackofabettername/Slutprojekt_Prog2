@@ -79,7 +79,7 @@ public class Game {
         }
     }
 
-    public void startServer() throws UnknownHostException {
+    public void startServer() throws UnknownHostException, SocketException {
         server = new Server(this);
         server.start();
 
@@ -89,19 +89,19 @@ public class Game {
     }
 
     public void closeServer() {
-        server.close();
+        if (server != null)
+            server.close();
         server = null;
     }
 
-    public void startClient(InetAddress address, int port) throws SocketException {
-        client = new Client("Client", address, port);
+    public void startClient(InetAddress address) throws SocketException {
+        client = new Client(address);
         client.start();
 
         clientSide.client = client;
 
         for (int i = 0; i < 5; ++i) {
-            client.queue(NetPacket.EmptyPacket);
-            client.sendQueued();
+            client.send(NetPacket.EmptyPacket);
 
             try {
                 Thread.sleep(100);
@@ -116,10 +116,12 @@ public class Game {
         }
 
         Debug.logWarning("Client failed to connect");
+        closeClient();
     }
 
     public void closeClient() {
-        client.close();
+        if (client != null)
+            client.close();
         client = null;
     }
 

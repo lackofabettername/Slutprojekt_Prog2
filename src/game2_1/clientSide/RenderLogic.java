@@ -98,9 +98,6 @@ public class RenderLogic implements WindowLogic {
                 }
             }
         }
-
-        if (frameCount % 1 == 0)
-            client.sendQueued();
     }
 
     @Override
@@ -210,11 +207,11 @@ public class RenderLogic implements WindowLogic {
             bloomPass.reload();
         }
 
-        client.queue(event);
+        client.send(event);
     }
     @Override
     public void onMouseEvent(MouseEvent event) {
-        client.queue(event);
+        client.send(event);
     }
 
     @Override

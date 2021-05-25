@@ -13,6 +13,7 @@ import processing.core.PGraphics;
 
 import java.io.UncheckedIOException;
 import java.net.InetAddress;
+import java.net.SocketException;
 import java.net.UnknownHostException;
 
 public class MainMenu implements WindowLogic, UIListener {
@@ -24,7 +25,7 @@ public class MainMenu implements WindowLogic, UIListener {
     private final MenuButton btnStartClient, btnStopClient;
     private final MenuButton btnStartGame, btnMapSong;
     private final MenuText lblServerStat, lblClientStat;
-    private final MenuTextField txfClientAddress, txfClientPort;
+    private final MenuTextField txfClientAddress;
 
 
     public MainMenu(Game parent) {
@@ -50,10 +51,9 @@ public class MainMenu implements WindowLogic, UIListener {
         client.addMenuObject(btnStopClient = new MenuButton("Stop Client", 18));
 
         MenuFramework clientStats = new MenuFramework("Client Status pane");
-        clientStats.addMenuObject(lblClientStat = new MenuText("Client Status", 18), 0, 0, 2, 3);
+        clientStats.addMenuObject(lblClientStat = new MenuText("Client Status", 18), 0, 0, 1, 3);
 
         clientStats.addMenuObject(txfClientAddress = new MenuTextField("address", 14), 0, 3);
-        clientStats.addMenuObject(txfClientPort = new MenuTextField("port", 14), 1, 3);
         client.addMenuObject(clientStats, 2, 0, 3, 1);
 
         framework.addMenuObject(client, 1);
@@ -88,8 +88,7 @@ public class MainMenu implements WindowLogic, UIListener {
 
         if (parent.server != null) {
             lblServerStat.text = "Running" +
-                    "\n" + parent.server.serverAddress +
-                    "\nOpen port: " + parent.server.getOpenPort() +
+                    "\n" + parent.server.LocalAddress +
                     "\n" + parent.server.getClientCount() + " connected client" + (parent.server.getClientCount() == 1 ? "" : "s");
 
         }// else
@@ -116,19 +115,16 @@ public class MainMenu implements WindowLogic, UIListener {
         Debug.logDecorated(caller.name, Foreground.Blue);
         if (caller == btnStartServer) {
             try {
-                parent.startServer();
-
-                //wait for server to Start
-                for (long start = System.currentTimeMillis(); parent.server.getOpenPort() == -1 && start > System.currentTimeMillis() - 1000; ) {
-                    Thread.onSpinWait();
+                try {
+                    parent.startServer();
+                } catch (SocketException e) {
+                    Debug.logError(e);
                 }
 
                 lblServerStat.text = "Running" +
-                        "\n" + parent.server.serverAddress +
-                        "\n" + parent.server.getOpenPort();
+                        "\n" + parent.server.LocalAddress;
 
                 txfClientAddress.text = "localhost";
-                txfClientPort.text = "" + parent.server.getOpenPort();
             } catch (UnknownHostException | NullPointerException e) {
                 Debug.logError(e);
             }
@@ -140,9 +136,7 @@ public class MainMenu implements WindowLogic, UIListener {
         } else if (caller == btnStartClient) {
             try {
                 InetAddress address = InetAddress.getByName(txfClientAddress.text);
-                int port = Integer.parseInt(txfClientPort.text);
-
-                parent.startClient(address, port);
+                parent.startClient(address);
 
                 lblClientStat.text = "Running";
             } catch (UnknownHostException e) {

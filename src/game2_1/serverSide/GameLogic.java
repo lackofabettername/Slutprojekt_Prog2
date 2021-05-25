@@ -71,8 +71,7 @@ public class GameLogic {
             }
 
             //Debug.logAll("send", serverSide.currentGameState);
-            server.queue(new NetPacket(NetPacketType.GameState, 0, gameState));
-            server.sendQueued();
+            server.send(new NetPacket(NetPacketType.GameState, 0, gameState));
         }
     }
 
@@ -94,7 +93,7 @@ public class GameLogic {
                                 if (gameState.readyPlayers == gameState.players.size())
                                     gameState.gameRunning = true;
 
-                                server.queue(new NetPacket(NetPacketType.ServerCommand, 0, "Start Music" + (System.currentTimeMillis() + 500)));
+                                server.send(new NetPacket(NetPacketType.ServerCommand, 0, "Start Music" + (System.currentTimeMillis() + 500)));
                                 gameState.music.start(0, 500);
                             }
                         } else if (message.startsWith("Selected")) {
