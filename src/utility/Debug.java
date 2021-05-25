@@ -244,7 +244,7 @@ public class Debug {
         synchronized (_logLock) {
             if (_isStartOfLine) {
                 System.out.print("\t".repeat(_offset));
-                logFile.print("\t".repeat(_offset));
+                if (logFile != null) logFile.print("\t".repeat(_offset));
             }
 
             if (!threadDecoration.isEmpty()) {
@@ -254,7 +254,7 @@ public class Debug {
 
             }
             System.out.print(text + (newLine ? "\n" : ""));
-            logFile.print(text.replaceAll("\u001B\\[[0-9]*m", "") + (newLine ? "\n" : ""));
+            if (logFile != null) logFile.print(text.replaceAll("\u001B\\[[0-9]*m", "") + (newLine ? "\n" : ""));
 
             _isStartOfLine = newLine;
         }
