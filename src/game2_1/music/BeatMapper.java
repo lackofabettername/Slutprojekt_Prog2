@@ -16,6 +16,7 @@ import java.io.File;
 import java.io.IOException;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.TreeMap;
 
 public class BeatMapper implements WindowLogic, UIListener {
     private final Application window;
@@ -144,6 +145,9 @@ public class BeatMapper implements WindowLogic, UIListener {
 
                     g.line(g.width - x, y - h, g.width - x, y + h);
                 }
+
+                g.fill(1);
+                g.text(beats.size(), window.WINDOW_W + musicEditorOffsetPixels / 2f, y);
                 //endregion
             });
 
@@ -269,30 +273,33 @@ public class BeatMapper implements WindowLogic, UIListener {
             Debug.logError(e);
         }
     }
+
     //region Events
     @Override
     public void onKeyEvent(KeyEvent event) {
         if (ui.handleEvent(event))
             return;
 
-        if (event.TYPE == KeyEventType.KEY_PRESSED) {
-            if (!event.CODED) {
-                if (event.KEY == ' ') {
-                    if (musicPlayer.playing())
-                        stop();
-                    else
-                        start();
-                }
-            } else {
-                switch ((int) event.KEY) {
-                    case PConstants.LEFT -> skip(500_000);
-                    case PConstants.RIGHT -> skip(-500_500);
+        if (beats != null) {
+            if (event.TYPE == KeyEventType.KEY_PRESSED) {
+                if (!event.CODED) {
+                    if (event.KEY == ' ') {
+                        if (musicPlayer.playing())
+                            stop();
+                        else
+                            start();
+                    }
+                } else {
+                    switch ((int) event.KEY) {
+                        case PConstants.LEFT -> skip(500_000);
+                        case PConstants.RIGHT -> skip(-500_500);
+                    }
                 }
             }
-        }
 
-        if (beats != null && saved != null && saved != beats.hashCode())
-            saved = null;
+            if (saved != null && saved != beats.hashCode())
+                saved = null;
+        }
     }
 
     @Override
@@ -303,19 +310,21 @@ public class BeatMapper implements WindowLogic, UIListener {
         if (ui.handleEvent(event))
             return;
 
-        if (event.Type == MouseEventType.MOUSE_BUTTON_PRESSED) {
-            int y = (int) (Math.floor((mouseY - uiHeight) / (window.WINDOW_H - uiHeight) * 3) + 0.5f);
-            if (event.mouseButton() == MouseEvent.LEFT_MOUSE_BUTTON) {
-                beats.addBeat((byte) y, (long) (getHoveredTimeStamp() * 1000), 1);
-            } else if (event.mouseButton() == MouseEvent.RIGHT_MOUSE_BUTTON) {
-                beats.removeBeat((byte) y, (long) (getHoveredTimeStamp() * 1000));
+        if (beats != null) {
+            if (event.Type == MouseEventType.MOUSE_BUTTON_PRESSED) {
+                int y = (int) (Math.floor((mouseY - uiHeight) / (window.WINDOW_H - uiHeight) * 3) + 0.5f);
+                if (event.mouseButton() == MouseEvent.LEFT_MOUSE_BUTTON) {
+                    beats.addBeat((byte) y, (long) (getHoveredTimeStamp() * 1000), 1);
+                } else if (event.mouseButton() == MouseEvent.RIGHT_MOUSE_BUTTON) {
+                    beats.removeBeat((byte) y, (long) (getHoveredTimeStamp() * 1000));
+                }
+            } else if (event.Type == MouseEventType.MOUSE_WHEEL) {
+                skip(event.scrollWheel() * -100_000L);
             }
-        } else if (event.Type == MouseEventType.MOUSE_WHEEL) {
-            skip(event.scrollWheel() * -100_000L);
-        }
 
-        if (beats != null && saved != null && saved != beats.hashCode())
-            saved = null;
+            if (beats != null && saved != null && saved != beats.hashCode())
+                saved = null;
+        }
     }
 
     @Override
@@ -353,6 +362,9 @@ public class BeatMapper implements WindowLogic, UIListener {
                     if (musicPlayer != null)
                         stop();
 
+                    if (beats != null && saved == null)//Auto save
+                        save(true);
+
                     songPath = "music/" + caller.name + "/";
                     musicPlayer = new MusicPlayer(songPath + "song.wav", playbackRate);
                     beats = BeatHandler.load(songPath + "beats.txt");
@@ -377,7 +389,6 @@ public class BeatMapper implements WindowLogic, UIListener {
             saved = null;
     }
     //endregion
-
 
     @Override
     public void onExit() {
