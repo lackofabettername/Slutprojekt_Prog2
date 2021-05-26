@@ -23,21 +23,35 @@ import utility.NormalizedMath;
 import java.util.Objects;
 import java.util.Queue;
 
+//TODO:
+// - Run a local simulation for the local player, reduces input lag.
+
+
+/**
+ * This is the client's main class. It receives gamestates from the server and renders them.
+ * It interpolates between gamestate if the client's framerate and server's updaterate dont match.
+ *
+ * @see GameState
+ */
 public class RenderLogic implements WindowLogic {
+    private final Application parent;
+
+    //The previous and current gamestate sent from the server
     private GameState previousGameState;
     GameState currentGameState;
 
+    //The client's current gamestate
     private GameState clientGameState;
+    //This client's player
     private PlayerLogic player;
 
     private int serverUPS;
-    private long gameStateTimeStamp;
-
-    private int frameCount;
+    private long gameStateTimeStamp;//used when interpolating between the server's gamestates
 
     public Client client;
 
-    private final Application parent;
+    boolean showBeatsOnCurson;
+
     //region PostFX
     private PostFX postFX;
     private BloomPass bloomPass;
@@ -62,13 +76,13 @@ public class RenderLogic implements WindowLogic {
 
                         player = currentGameState.players.get(client.id);
                     }
-                    case GameStateDelta -> {
+                    case GameStateDelta -> {//todo
                         //previousGameState.mutableMembers = currentGameState.mutableMembers;
                         //currentGameState.mutableMembers = (GameState.MutableGameState) packet.object();
                         //gameStateTimeStamp = packet.timeStamp();
                     }
-                    case ClientInput -> throw new UnsupportedOperationException("This should not happen");
-                    case Information -> {
+                    case ClientInput -> throw new UnsupportedOperationException("This should not happen"); //todo: ignore it? or disconnect from the server?
+                    case Information -> {//Sent once from the server when the client (this) connects.
                         ClientInfo info = (ClientInfo) packet.object();
                         Debug.log(info);
 
@@ -84,7 +98,7 @@ public class RenderLogic implements WindowLogic {
                     }
                     case ServerCommand -> {
                         String command = (String) packet.object();
-                        if (command.startsWith("Start Music")) {
+                        if (command.startsWith("Start Music")) {//Start the music player with the delayed start specified by the server. This is so all clients start at the same time regardless of their ping
                             clientGameState.music = new MusicPlayer(clientGameState.songPath + "song.wav", 1);
 
                             long startDelay = Long.parseLong(command.substring(11));
@@ -102,16 +116,17 @@ public class RenderLogic implements WindowLogic {
 
     @Override
     public void render(PGraphics g) {
+        //Create shaders
         if (postFX == null) {
             var temp = parent.getApplet();
             postFX = new PostFX(temp);
             bloomPass = new BloomPass(temp);
         }
 
-        ++frameCount;
-
         handleNetPackets();
 
+        //If the game hasn't started yet, enter the songmenu
+        //Todo: move this somewhere else?
         if (!currentGameState.gameRunning) {
             parent.setLogic(new SongMenu(parent, this));
             return;
@@ -119,21 +134,23 @@ public class RenderLogic implements WindowLogic {
 
         if (previousGameState == null) return;
 
+        //Lerp between the server's gamestates
         float t = (System.currentTimeMillis() - gameStateTimeStamp) / (1000f / serverUPS);
-        //t = 1;
         GameState serverGameState = GameState.lerp(t, previousGameState, currentGameState);
 
         //region Render
         g.background(0);
 
+        //notice: this is for debugging, remove this
         //region Debug
         g.fill(0);
         g.rect(g.width / 2f - 100, g.height / 2f - 50, 200, 100);
         g.fill(1);
 
-        g.text(String.format("%d, %1.1f %1.1f\n" +
-                        "%1.2f\n%s",
-                frameCount,
+        g.text(String.format("""
+                        %1.1f %1.1f
+                        %1.2f
+                        %s""",
                 parent.getFrameRate(),
                 t,
                 serverGameState.updateCount,
@@ -141,45 +158,63 @@ public class RenderLogic implements WindowLogic {
         ), g.width / 2f, g.height / 2f);
         //endregion
 
-        clientGameState.lerp(0.8f, serverGameState); //fixme
+        //The server doesn't care about graphical things like particle systems. Therefore we can't
+        //use the server's gamestates immediately, but must apply them to the local gamestate.
+        // Things like positions or velocities of projectiles are updated, while particle systems are preserved.
+        clientGameState.lerp(0.8f, serverGameState);
+
+        //region Players
+        //all the PlayerLogic's in this map are actually players.
+        clientGameState.players.forEach((id, player) -> ((Player) player).render(g));
+        //endregion
 
         //region Projectiles
-        clientGameState.players.forEach((id, player) -> ((Player) player).render(g));
         clientGameState.projectiles.forEach(projectile -> {
             if (projectile != null) projectile.render(g);
         });
         //endregion
 
         //region Beats
-        g.push();
-        final float[] highestBeatStrength = {0};
-        clientGameState.beats.forEach((type, queue) -> {
-            if (type != player.weaponType)
-                return;
 
-            long time = clientGameState.music.getMicrosecondPosition() / 1000;//millis
-            time += clientGameState.beats.startOffset;
+        {
+            g.push();
+            final float[] highestBeatStrength = {0};
 
-            highestBeatStrength[0] = Math.max(highestBeatStrength[0], clientGameState.beats.getStrength(type, time));
+            final long time = clientGameState.music.getMicrosecondPosition() / 1000 + clientGameState.beats.startOffset;//millis
+            final int pixelsPerSecond = 200;
+            final float lookAhead = 0.75f; //How early a beat should be visible. If this is one each beat will be visible one second before they hit
 
-            g.stroke(1);
-            int i = 0;
-            for (BeatHandler.Beat beat : queue) {
-                float x = beat.timeStamp() - time;
+            final float cenX = showBeatsOnCurson ? player.cursor.x : parent.WindowW / 2f;
+            final float cenY = showBeatsOnCurson ? player.cursor.y : parent.WindowH - 15;
 
-                if (x < 0) continue;
-                //if (i++ > 3) break;//Only show the next three beats
+            //Draw the coming beats
+            g.strokeWeight(1);
+            clientGameState.beats.forEach((type, queue) -> {
+                if (type != player.weaponType) return;//Only render the beats the player cares about
 
-                x /= 1000f;
-                x *= 300;//pixels per second
+                //The bloom is dependent on the music, find the closest beat
+                highestBeatStrength[0] = Math.max(highestBeatStrength[0], clientGameState.beats.getStrength(type, time));
 
-                g.line(g.width / 2f + x, g.height - 12, g.width / 2f + x, g.height - 2);
-                g.line(g.width / 2f - x, g.height - 12, g.width / 2f - x, g.height - 2);
-            }
-        });
+                for (BeatHandler.Beat beat : queue) {
+                    float x = beat.timeStamp() - time;
 
-        bloomPass.setStrength(NormalizedMath.smoothStop2(highestBeatStrength[0]));
-        g.pop();
+                    if (x < 0) continue;
+
+                    x /= 1000f;
+                    x *= pixelsPerSecond;
+
+                    if (x > pixelsPerSecond * lookAhead) break;
+                    g.stroke(NormalizedMath.smoothStart3(1 - x / (pixelsPerSecond * lookAhead)));
+
+                    g.line(cenX + x, cenY - 5, cenX + x, cenY + 5);
+                    g.line(cenX - x, cenY - 5, cenX - x, cenY + 5);
+                }
+            });
+
+            bloomPass.setStrength(NormalizedMath.smoothStop2(highestBeatStrength[0]));
+            g.pop();
+        }
+
         //endregion
 
         //region Score
@@ -190,7 +225,7 @@ public class RenderLogic implements WindowLogic {
         g.text(scoreText.toString().trim(), parent.WindowW - 100, 0, 100, 200);
         //endregion
 
-
+        //Apply shaders
         try {
             postFX.render()
                     .custom(bloomPass)
@@ -203,7 +238,7 @@ public class RenderLogic implements WindowLogic {
 
     @Override
     public void onKeyEvent(KeyEvent event) {
-        if (event.Key == 'u') {
+        if (event.Key == 'u') {//notice: this is for debugging, remove this
             bloomPass.reload();
         }
 

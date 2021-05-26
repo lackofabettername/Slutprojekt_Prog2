@@ -4,12 +4,10 @@ import utility.Debug;
 
 import java.io.Serializable;
 
-public record NetPacket(
-        NetPacketType type,
-        long timeStamp,
-        byte sender,
-        Serializable object
-) implements Serializable, Comparable<NetPacket> {
+public record NetPacket(NetPacketType type, long timeStamp, byte sender, Serializable object) implements Serializable, Comparable<NetPacket> {
+    public static final byte Server = 0;
+    public static final byte Unkown = -1;
+
     public NetPacket(NetPacketType type, byte sender, Serializable object) {
         this(type, System.currentTimeMillis(), sender, object);
     }

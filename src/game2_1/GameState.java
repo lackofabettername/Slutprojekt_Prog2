@@ -148,9 +148,6 @@ public class GameState implements Serializable {
                     throw new IllegalStateException("This should not happen");
                     //TODO: disconnect client instead of crashing
                 }
-                // while (!music.Stopped())
-               //     ;
-                    //Thread.onSpinWait();
 
                 music = new MusicPlayer(target.songPath + "song.wav", music.playbackRate);
                 music.start(0, startDelay);
@@ -202,13 +199,8 @@ public class GameState implements Serializable {
 
                 //noinspection ConstantConditions
                 if (targetProjectile.id < currentProjectile.id) {
-                    //Debug.log("Inserted: " + targetProjectile + " at ", false);
                     projectiles.add(Debug.log(j - 1), targetProjectile);
                 } else if (j <= projectiles.size()) {
-                    //if (currentProjectile.id != targetProjectile.id) {
-                    //    Debug.logWarning("Bad");
-                    //    Debug.logDecorated(currentProjectile + ", " + targetProjectile, Foreground.Blue);
-                    //}
                     projectiles.set(
                             j - 1,
                             new Projectile(

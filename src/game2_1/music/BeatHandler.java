@@ -203,6 +203,9 @@ public class BeatHandler implements Serializable{
     public float getStrength(byte weaponType, long timeStamp) {
         LinkedList<Beat> beats = this.beats.get(weaponType);
 
+        if (beats.isEmpty())
+            return 0;
+
         Beat closestBeat = beats.get(
                 beatIndex.compute(weaponType, (ignored, index) -> {
                     if (index == null)

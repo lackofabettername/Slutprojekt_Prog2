@@ -86,7 +86,6 @@ public class Application {
         @Override
         public void dispose() { // Called before PApplet closes, can be used to detect crashes.
             Debug.closeLog();
-            Debug.log("asddsadsa");
             currentLogic.onExit();
 
             running = false;

@@ -5,6 +5,7 @@ import game2_1.Game;
 import game2_1.WindowLogic;
 import game2_1.events.KeyEvent;
 import game2_1.events.MouseEvent;
+import game2_1.music.BeatMapper;
 import ui.*;
 import utility.Debug;
 import utility.style.Foreground;
@@ -125,7 +126,7 @@ public class MainMenu implements WindowLogic, UIListener {
                         "\n" + parent.server.LocalAddress;
 
                 txfClientAddress.text = "localhost";
-            } catch (UnknownHostException | NullPointerException e) {
+            } catch (NullPointerException e) {
                 Debug.logError(e);
             }
         } else if (caller == btnStopServer) {
@@ -156,7 +157,7 @@ public class MainMenu implements WindowLogic, UIListener {
         } else if (caller == btnStartGame) {
             parent.window.setLogic(parent.clientSide);
         } else if (caller == btnMapSong) {
-            parent.window.setLogic(parent.songMapper);
+            parent.window.setLogic(new BeatMapper(parent.window));
         }
     }
 
