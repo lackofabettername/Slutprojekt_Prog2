@@ -87,6 +87,7 @@ public class MenuTextField extends MenuObject implements Serializable {
                 backgroundColor.setAlpha(1);
 
                 if (mouseEvent.Type == MouseEventType.MOUSE_BUTTON_PRESSED) {
+                    if (!active) animationStart();
                     active = true;
                 }
 
@@ -101,6 +102,7 @@ public class MenuTextField extends MenuObject implements Serializable {
                 if (keyEvent.KEY == 8) {//backspace
                     text = text.substring(0, Math.max(text.length() - 1, 0));
                 } else if (keyEvent.KEY == 10) {//enter
+                    animationStop();
                     active = false;
                     parent.uiEvent(this);
                 } else if (keyEvent.KEY == 65535) {//CODED, not supported yet
@@ -113,6 +115,7 @@ public class MenuTextField extends MenuObject implements Serializable {
         }
 
         backgroundColor.setAlpha(0);
+        if (active) animationStop();
         active = false;
         return hovered = false;
     }

@@ -137,17 +137,16 @@ public class MainMenu implements WindowLogic, UIListener {
         } else if (caller == btnStartClient) {
             try {
                 InetAddress address = InetAddress.getByName(txfClientAddress.text);
-                parent.startClient(address);
-
-                lblClientStat.text = "Running";
+                if (parent.startClient(address))
+                    lblClientStat.text = "Running";
+                else
+                    lblClientStat.text = "Client could not connect to the server";
             } catch (UnknownHostException e) {
                 Debug.logError(e);
                 lblClientStat.text = "Invalid address";
-            } catch (NumberFormatException | UncheckedIOException e) {
-                Debug.logError(e);
-                lblClientStat.text = "Invalid port";
             } catch (Exception e) {
                 Debug.logError(e);
+                lblClientStat.text = "An error occurred";
             }
         } else if (caller == btnStopClient) {
             if (parent.client != null)

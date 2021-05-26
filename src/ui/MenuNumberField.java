@@ -7,6 +7,7 @@ import processing.core.PGraphics;
 
 import java.io.Serializable;
 
+//optimize: extend MenuTextField for cleaner code?
 public class MenuNumberField extends MenuObject implements Serializable {
     public float value;
     private final MenuText menuText;
@@ -135,6 +136,7 @@ public class MenuNumberField extends MenuObject implements Serializable {
                 backgroundColor.setAlpha(1);
 
                 if (mouseEvent.Type == MouseEventType.MOUSE_BUTTON_PRESSED) {
+                    if (!active) animationStart();
                     active = true;
                     previousMouseX = mouseEvent.MouseX;
                 }
@@ -158,6 +160,7 @@ public class MenuNumberField extends MenuObject implements Serializable {
                     if (text.length() == 0)
                         text = "0";
                 } else if (keyEvent.KEY == 10) {//enter
+                    animationStop();
                     active = false;
                     parent.uiEvent(this);
                 } else if (keyEvent.KEY == 65535) {//CODED, not supported yet
@@ -184,6 +187,7 @@ public class MenuNumberField extends MenuObject implements Serializable {
         }
 
         backgroundColor.setAlpha(0);
+        if (active) animationStop();
         active = false;
         return hovered = false;
     }

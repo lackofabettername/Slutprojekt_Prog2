@@ -106,13 +106,13 @@ public class MenuDropdownFramework extends MenuFramework {
             }
         }
 
-        if (toggleAnimation && parent instanceof MenuFramework frameworkParent) {
-            if (animating) {
-                frameworkParent.animationStop();
-            } else {
-                frameworkParent.animationStart();
-            }
+        if (toggleAnimation) {
             animating = !animating;
+            if (animating) {
+                animationStart();
+            } else {
+                animationStop();
+            }
         }
     }
 

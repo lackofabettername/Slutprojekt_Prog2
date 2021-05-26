@@ -40,6 +40,18 @@ public abstract class MenuObject implements Serializable {
         this.parent = parent;
     }
 
+    protected void animationStart() {
+        if (parent instanceof MenuFramework framework) {
+            framework.animationStart();
+        }
+    }
+
+    protected void animationStop() {
+        if (parent instanceof MenuFramework framework) {
+            framework.animationStop();
+        }
+    }
+
     protected void renderBounds(PGraphics g) {
         if (renderBounds) {
             g.stroke(1);
