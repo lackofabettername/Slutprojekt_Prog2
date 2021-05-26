@@ -1,7 +1,10 @@
 package game2_1.events;
 
+/**
+ * @author Respar
+ */
 public enum KeyEventType {
-    KeyTyped,
-    KeyPressed,
-    KeyReleased
+    KEY_TYPED,
+    KEY_PRESSED,
+    KEY_RELEASED
 }

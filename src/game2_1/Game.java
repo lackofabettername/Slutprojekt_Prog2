@@ -63,7 +63,7 @@ public class Game {
 
         Debug.logLine();
 
-        while (window.running) {
+        while (window.isRunning()) {
             try {
                 synchronized (this) {
                     Thread.sleep(500);

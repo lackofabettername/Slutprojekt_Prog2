@@ -3,7 +3,6 @@ package ui;
 import game2_1.events.InputEvent;
 import game2_1.events.MouseEvent;
 import utility.*;
-import utility.style.Foreground;
 
 import processing.core.PGraphics;
 
@@ -155,16 +154,16 @@ public class MenuScrollFrameWork extends MenuFramework {
                     scrollBarColorX.setAlpha(0.6f);
 
                     switch (mouseEvent.Type) {
-                        case MouseButtonPressed -> scrollbarActiveX = true;
-                        case MouseButtonReleased -> scrollbarActiveX = false;
-                        case MouseDragged -> {
+                        case MOUSE_BUTTON_PRESSED -> scrollbarActiveX = true;
+                        case MOUSE_BUTTON_RELEASED -> scrollbarActiveX = false;
+                        case MOUSE_DRAGGED -> {
                             x -= bounds.x;
                             x -= (bounds.w - (scrollbarY ? scrollbarThickness : 0)) * scrollbarRatioX / 2;
                             x /= (bounds.w - (scrollbarY ? scrollbarThickness : 0)) - (bounds.w - (scrollbarY ? scrollbarThickness : 0)) * scrollbarRatioX;
                             scrollbarPosX = MathF.clamp(x, 0, 1);
                             scrollBarColorX.setAlpha(1);
                         }
-                        case MouseWheel -> {
+                        case MOUSE_WHEEL -> {
                             scrollbarPosX += ((MouseEvent) event).scrollWheel() * scrollbarRatioX / 10;
                             scrollbarPosX = MathF.clamp(scrollbarPosX, 0, 1);
                         }
@@ -184,9 +183,9 @@ public class MenuScrollFrameWork extends MenuFramework {
                     scrollBarColorY.setAlpha(0.6f);
 
                     switch (mouseEvent.Type) {
-                        case MouseButtonPressed -> scrollbarActiveY = true;
-                        case MouseButtonReleased -> scrollbarActiveY = false;
-                        case MouseDragged -> {
+                        case MOUSE_BUTTON_PRESSED -> scrollbarActiveY = true;
+                        case MOUSE_BUTTON_RELEASED -> scrollbarActiveY = false;
+                        case MOUSE_DRAGGED -> {
 
                             y -= bounds.y;
                             y -= (bounds.h - (scrollbarX ? scrollbarThickness : 0)) * scrollbarRatioY / 2;
@@ -194,7 +193,7 @@ public class MenuScrollFrameWork extends MenuFramework {
                             scrollbarPosY = MathF.clamp(y, 0, 1);
                             scrollBarColorY.setAlpha(1);
                         }
-                        case MouseWheel -> {
+                        case MOUSE_WHEEL -> {
                             scrollbarPosY += ((MouseEvent) event).scrollWheel() * scrollbarRatioY / 10;
                             scrollbarPosY = MathF.clamp(scrollbarPosY, 0, 1);
                         }

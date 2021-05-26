@@ -35,7 +35,7 @@ public class MainMenu implements WindowLogic, UIListener {
 
         float padding = 5;
 
-        MenuFramework framework = new MenuFramework("Menu", this, padding, padding, window.WindowW - padding * 2, window.WindowH - padding * 2);
+        MenuFramework framework = new MenuFramework("Menu", this, padding, padding, window.WINDOW_W - padding * 2, window.WINDOW_H - padding * 2);
 
         //region Add elements
         //region Server

@@ -116,7 +116,7 @@ public class MenuNumberField extends MenuObject implements Serializable {
     public boolean handleEvent(InputEvent event, Vector2 translation) {//TODO fixed period logic
 
         if (event instanceof MouseEvent mouseEvent) {
-            if (active && mouseEvent.Type == MouseEventType.MouseDragged) {
+            if (active && mouseEvent.Type == MouseEventType.MOUSE_DRAGGED) {
                 if (previousMouseX != -1) {
                     accumulator += (mouseEvent.MouseX - previousMouseX) * resolution;
                     for (; accumulator >= 1; --accumulator)
@@ -134,22 +134,22 @@ public class MenuNumberField extends MenuObject implements Serializable {
             if (bounds.inBounds(mouseEvent.MouseX - translation.x, mouseEvent.MouseY - translation.y)) {
                 backgroundColor.setAlpha(1);
 
-                if (mouseEvent.Type == MouseEventType.MouseButtonPressed) {
+                if (mouseEvent.Type == MouseEventType.MOUSE_BUTTON_PRESSED) {
                     active = true;
                     previousMouseX = mouseEvent.MouseX;
                 }
 
                 return hovered = true;
-            } else if (active && mouseEvent.Type != MouseEventType.MouseButtonPressed) {
+            } else if (active && mouseEvent.Type != MouseEventType.MOUSE_BUTTON_PRESSED) {
                 return true;
             }
         } else if (active) {
 
             KeyEvent keyEvent = (KeyEvent) event;
-            if (keyEvent.Type == KeyEventType.KeyPressed) {
+            if (keyEvent.TYPE == KeyEventType.KEY_PRESSED) {
                 String text = getText();
 
-                if (keyEvent.Key == 8) {//backspace
+                if (keyEvent.KEY == 8) {//backspace
                     if (text.equals("0"))
                         empty = true;
 
@@ -157,17 +157,17 @@ public class MenuNumberField extends MenuObject implements Serializable {
                     userPlacedPeriod = false;
                     if (text.length() == 0)
                         text = "0";
-                } else if (keyEvent.Key == 10) {//enter
+                } else if (keyEvent.KEY == 10) {//enter
                     active = false;
                     parent.uiEvent(this);
-                } else if (keyEvent.Key == 65535) {//CODED, not supported yet
+                } else if (keyEvent.KEY == 65535) {//CODED, not supported yet
                     //todo
                 } else {
-                    //if (userPlacedPeriod && Character.isDigit(keyEvent.Key))
+                    //if (userPlacedPeriod && Character.isDigit(keyEvent.KEY))
                     //    text += '.';
 
-                    text += keyEvent.Key;
-                    if (keyEvent.Key == '.')
+                    text += keyEvent.KEY;
+                    if (keyEvent.KEY == '.')
                         userPlacedPeriod = true;
 
                     empty = false;

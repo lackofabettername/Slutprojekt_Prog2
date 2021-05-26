@@ -112,32 +112,32 @@ public class PlayerLogic implements Serializable {
     public void handleEvent(InputEvent event) {
         if (event instanceof KeyEvent keyEvent) {
 
-            switch (keyEvent.Type) {
-                case KeyTyped -> {
+            switch (keyEvent.TYPE) {
+                case KEY_TYPED -> {
                 }
-                case KeyPressed -> {
-                    if (keyBinds.containsKey(keyEvent.Key))
-                        movement.add(keyBinds.get(keyEvent.Key));
+                case KEY_PRESSED -> {
+                    if (keyBinds.containsKey(keyEvent.KEY))
+                        movement.add(keyBinds.get(keyEvent.KEY));
                 }
-                case KeyReleased -> {
-                    if (keyBinds.containsKey(keyEvent.Key))
-                        movement.remove(keyBinds.get(keyEvent.Key));
+                case KEY_RELEASED -> {
+                    if (keyBinds.containsKey(keyEvent.KEY))
+                        movement.remove(keyBinds.get(keyEvent.KEY));
                 }
             }
         } else if (event instanceof MouseEvent mouseEvent) {
 
             switch (mouseEvent.Type) {
-                case MouseMoved -> {
+                case MOUSE_MOVED -> {
                     cursor.set(mouseEvent.MouseX, mouseEvent.MouseY);
                 }
-                case MouseDragged -> {
+                case MOUSE_DRAGGED -> {
                 }
-                case MouseButtonClicked -> {
+                case MOUSE_BUTTON_CLICKED -> {
                 }
-                case MouseButtonPressed -> shoot();
-                case MouseButtonReleased -> {
+                case MOUSE_BUTTON_PRESSED -> shoot();
+                case MOUSE_BUTTON_RELEASED -> {
                 }
-                case MouseWheel -> {
+                case MOUSE_WHEEL -> {
                 }
             }
         }

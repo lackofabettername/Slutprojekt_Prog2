@@ -15,7 +15,6 @@ import utility.MathF;
 import java.io.File;
 import java.io.IOException;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
 import java.util.Date;
 
 public class BeatMapper implements WindowLogic, UIListener {
@@ -50,7 +49,7 @@ public class BeatMapper implements WindowLogic, UIListener {
         this.window = window;
 
         //region UI
-        MenuFramework menu = new MenuFramework("BeatMapperMenu", this, new Bounds2(0, 0, window.WindowW, uiHeight));
+        MenuFramework menu = new MenuFramework("BeatMapperMenu", this, new Bounds2(0, 0, window.WINDOW_W, uiHeight));
 
         menu.addMenuObject(new MenuNumberField("BPM", 0.5f, 18), 0);
         menu.addMenuObject(new MenuNumberField("StartOffset", 1, 18), 0);
@@ -80,7 +79,7 @@ public class BeatMapper implements WindowLogic, UIListener {
         dropdown.expandedBounds.h *= 6;
         ui = new UI(window, menu);
 
-        pixelsPerSecond = (window.WindowW - musicEditorOffsetPixels) * bps / 10;
+        pixelsPerSecond = (window.WINDOW_W - musicEditorOffsetPixels) * bps / 10;
         ((MenuNumberField) ui.getMenuObject("BPM")).value = bpm;
         ((MenuNumberField) ui.getMenuObject("SubBeats")).value = subBeats;
         ((MenuNumberField) ui.getMenuObject("Speed")).value = 1;
@@ -102,7 +101,7 @@ public class BeatMapper implements WindowLogic, UIListener {
 
             g.strokeWeight(1);
             g.stroke(1, 0.4f);
-            g.line(window.WindowW - musicEditorOffsetPixels, uiHeight, window.WindowW - musicEditorOffsetPixels, window.WindowH);
+            g.line(window.WINDOW_W - musicEditorOffsetPixels, uiHeight, window.WINDOW_W - musicEditorOffsetPixels, window.WINDOW_H);
 
             g.translate(-musicEditorOffsetPixels, 0);
 
@@ -186,7 +185,7 @@ public class BeatMapper implements WindowLogic, UIListener {
     private float getHoveredTimeStamp() {
         float time = getTime() / 1000;
 
-        float x = (window.WindowW - mouseX - musicEditorOffsetPixels);
+        float x = (window.WINDOW_W - mouseX - musicEditorOffsetPixels);
         x /= pixelsPerSecond;
         x += time;
 
@@ -276,16 +275,16 @@ public class BeatMapper implements WindowLogic, UIListener {
         if (ui.handleEvent(event))
             return;
 
-        if (event.Type == KeyEventType.KeyPressed) {
-            if (!event.Coded) {
-                if (event.Key == ' ') {
+        if (event.TYPE == KeyEventType.KEY_PRESSED) {
+            if (!event.CODED) {
+                if (event.KEY == ' ') {
                     if (musicPlayer.playing())
                         stop();
                     else
                         start();
                 }
             } else {
-                switch ((int) event.Key) {
+                switch ((int) event.KEY) {
                     case PConstants.LEFT -> skip(500_000);
                     case PConstants.RIGHT -> skip(-500_500);
                 }
@@ -304,14 +303,14 @@ public class BeatMapper implements WindowLogic, UIListener {
         if (ui.handleEvent(event))
             return;
 
-        if (event.Type == MouseEventType.MouseButtonPressed) {
-            int y = (int) (Math.floor((mouseY - uiHeight) / (window.WindowH - uiHeight) * 3) + 0.5f);
-            if (event.mouseButton() == MouseEvent.LeftMouseButton) {
+        if (event.Type == MouseEventType.MOUSE_BUTTON_PRESSED) {
+            int y = (int) (Math.floor((mouseY - uiHeight) / (window.WINDOW_H - uiHeight) * 3) + 0.5f);
+            if (event.mouseButton() == MouseEvent.LEFT_MOUSE_BUTTON) {
                 beats.addBeat((byte) y, (long) (getHoveredTimeStamp() * 1000), 1);
-            } else if (event.mouseButton() == MouseEvent.RightMouseButton) {
+            } else if (event.mouseButton() == MouseEvent.RIGHT_MOUSE_BUTTON) {
                 beats.removeBeat((byte) y, (long) (getHoveredTimeStamp() * 1000));
             }
-        } else if (event.Type == MouseEventType.MouseWheel) {
+        } else if (event.Type == MouseEventType.MOUSE_WHEEL) {
             skip(event.scrollWheel() * -100_000L);
         }
 
@@ -360,7 +359,7 @@ public class BeatMapper implements WindowLogic, UIListener {
                     saved = beats.hashCode();
 
                     setBPM(beats.bpm);
-                    pixelsPerSecond = (window.WindowW - musicEditorOffsetPixels) * bps / 5; //5 beats visible on screen
+                    pixelsPerSecond = (window.WINDOW_W - musicEditorOffsetPixels) * bps / 5; //5 beats visible on screen
                     ((MenuNumberField) ui.getMenuObject("Pixels per Second")).value = pixelsPerSecond;
 
                     ((MenuNumberField) ui.getMenuObject("StartOffset")).value = beats.startOffset;

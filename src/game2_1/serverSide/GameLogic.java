@@ -1,11 +1,8 @@
 package game2_1.serverSide;
 
 import game2_1.Application;
-import game2_1.Game;
 import game2_1.GameState;
 import game2_1.events.InputEvent;
-import game2_1.events.KeyEvent;
-import game2_1.events.KeyEventType;
 import game2_1.internet.ClientInfo;
 import game2_1.internet.NetPacket;
 import game2_1.internet.NetPacketType;
@@ -167,12 +164,12 @@ public class GameLogic {
                 iterator.remove();
             }
 
-            projectile.update(parent.Bounds);
+            projectile.update(parent.BOUNDS);
         }
 
         //Update the players
         gameState.players.forEach((id, playerLogic) -> {
-            playerLogic.update(deltaTime, parent.Bounds);
+            playerLogic.update(deltaTime, parent.BOUNDS);
             playerLogic.checkIfHit(gameState.projectiles);
         });
     }

@@ -5,7 +5,6 @@ import game2_1.Application;
 import game2_1.GameState;
 import game2_1.WindowLogic;
 import game2_1.clientSide.shaders.BloomPass;
-import game2_1.clientSide.shaders.BlurPass;
 import game2_1.events.KeyEvent;
 import game2_1.events.MouseEvent;
 import game2_1.internet.Client;
@@ -184,8 +183,8 @@ public class RenderLogic implements WindowLogic {
             final int pixelsPerSecond = 200;
             final float lookAhead = 0.75f; //How early a beat should be visible. If this is one each beat will be visible one second before they hit
 
-            final float cenX = showBeatsOnCurson ? player.cursor.x : parent.WindowW / 2f;
-            final float cenY = showBeatsOnCurson ? player.cursor.y : parent.WindowH - 15;
+            final float cenX = showBeatsOnCurson ? player.cursor.x : parent.WINDOW_W / 2f;
+            final float cenY = showBeatsOnCurson ? player.cursor.y : parent.WINDOW_H - 15;
 
             //Draw the coming beats
             g.strokeWeight(1);
@@ -222,7 +221,7 @@ public class RenderLogic implements WindowLogic {
         clientGameState.scores.forEach((playerId, score) ->
                 scoreText.append(String.format("%d: %d\n", playerId, score))
         );
-        g.text(scoreText.toString().trim(), parent.WindowW - 100, 0, 100, 200);
+        g.text(scoreText.toString().trim(), parent.WINDOW_W - 100, 0, 100, 200);
         //endregion
 
         //Apply shaders
@@ -238,7 +237,7 @@ public class RenderLogic implements WindowLogic {
 
     @Override
     public void onKeyEvent(KeyEvent event) {
-        if (event.Key == 'u') {//notice: this is for debugging, remove this
+        if (event.KEY == 'u') {//notice: this is for debugging, remove this
             bloomPass.reload();
         }
 

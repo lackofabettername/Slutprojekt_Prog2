@@ -86,27 +86,27 @@ public class MenuTextField extends MenuObject implements Serializable {
             if (bounds.inBounds(mouseEvent.MouseX - translation.x, mouseEvent.MouseY - translation.y)) {
                 backgroundColor.setAlpha(1);
 
-                if (mouseEvent.Type == MouseEventType.MouseButtonPressed) {
+                if (mouseEvent.Type == MouseEventType.MOUSE_BUTTON_PRESSED) {
                     active = true;
                 }
 
                 return hovered = true;
-            } else if (active && mouseEvent.Type != MouseEventType.MouseButtonPressed) {
+            } else if (active && mouseEvent.Type != MouseEventType.MOUSE_BUTTON_PRESSED) {
                 return true;
             }
         } else if (active) {
 
             KeyEvent keyEvent = (KeyEvent) event;
-            if (keyEvent.Type == KeyEventType.KeyPressed) {
-                if (keyEvent.Key == 8) {//backspace
+            if (keyEvent.TYPE == KeyEventType.KEY_PRESSED) {
+                if (keyEvent.KEY == 8) {//backspace
                     text = text.substring(0, Math.max(text.length() - 1, 0));
-                } else if (keyEvent.Key == 10) {//enter
+                } else if (keyEvent.KEY == 10) {//enter
                     active = false;
                     parent.uiEvent(this);
-                } else if (keyEvent.Key == 65535) {//CODED, not supported yet
+                } else if (keyEvent.KEY == 65535) {//CODED, not supported yet
                     //todo
                 } else {
-                    text += keyEvent.Key;
+                    text += keyEvent.KEY;
                 }
             }
             return true;

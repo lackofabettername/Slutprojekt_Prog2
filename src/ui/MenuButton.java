@@ -54,24 +54,24 @@ public class MenuButton extends MenuObject implements Serializable {
         if (event instanceof MouseEvent mouseEvent) {
             if (bounds.inBounds(mouseEvent.MouseX - translation.x, mouseEvent.MouseY - translation.y)) {
                 switch (mouseEvent.Type) {
-                    case MouseButtonPressed:
+                    case MOUSE_BUTTON_PRESSED:
                         pressed = true;
                         backgroundColor.setLightness(0.4f);
                         parent.uiEvent(this);
-                    case MouseMoved, MouseDragged:
+                    case MOUSE_MOVED, MOUSE_DRAGGED:
                         backgroundColor.setAlpha(1);
                         return hovered = true;
 
-                    case MouseButtonReleased:
+                    case MOUSE_BUTTON_RELEASED:
                         pressed = false;
                         backgroundColor.setLightness(0.2f);
                         return true;
 
-                    case MouseButtonClicked:
+                    case MOUSE_BUTTON_CLICKED:
                         return true;
                 }
             } else if (pressed) {
-                if (mouseEvent.Type == MouseEventType.MouseDragged)
+                if (mouseEvent.Type == MouseEventType.MOUSE_DRAGGED)
                     return true;
             }
         }

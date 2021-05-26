@@ -38,19 +38,19 @@ public class SongMenu implements WindowLogic, UIListener {
         this.parent = parent;
 
         //region UI
-        MenuFramework framework = new MenuFramework("FrameWork", this, window.Bounds);
+        MenuFramework framework = new MenuFramework("FrameWork", this, window.BOUNDS);
 
         int buff = 20;
 
         //region Songs
-        fslSongSelector = new MenuFileSelector("SongSelector", "music", File::isDirectory, new Bounds2(buff, buff, window.WindowH - buff * 2, window.WindowH - buff * 2));
+        fslSongSelector = new MenuFileSelector("SongSelector", "music", File::isDirectory, new Bounds2(buff, buff, window.WINDOW_H - buff * 2, window.WINDOW_H - buff * 2));
 
         fslSongSelector.renderBounds = true;
         framework.addMenuObject(fslSongSelector);
         //endregion
 
         //region Settings
-        MenuFramework settingsPane = new MenuFramework("settings", window.WindowH, buff, window.WindowW - window.WindowH - buff, window.WindowH - buff * 2);
+        MenuFramework settingsPane = new MenuFramework("settings", window.WINDOW_H, buff, window.WINDOW_W - window.WINDOW_H - buff, window.WINDOW_H - buff * 2);
 
         settingsPane.addMenuObject(txtSelectedSong = new MenuText("Selected Song", 24), 1);
         txtSelectedSong.renderBounds = false;

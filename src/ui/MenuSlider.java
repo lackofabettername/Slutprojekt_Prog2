@@ -100,14 +100,14 @@ public class MenuSlider extends MenuObject implements Serializable {
             boolean overCircle = delta.magnitudeSqr() < r * r * 1.2f;
 
             switch (mouseEvent.Type) {
-                case MouseMoved:
+                case MOUSE_MOVED:
                     hovered = overCircle;
                     return overCircle;
 
-                case MouseButtonPressed:
+                case MOUSE_BUTTON_PRESSED:
                     active = overCircle;
-                case MouseDragged:
-                case MouseButtonClicked:
+                case MOUSE_DRAGGED:
+                case MOUSE_BUTTON_CLICKED:
 
                     if (overCircle || active) {
                         if (vertical) {
@@ -122,15 +122,15 @@ public class MenuSlider extends MenuObject implements Serializable {
                         parent.uiEvent(this);
                     }
 
-                    if (mouseEvent.Type == MouseEventType.MouseButtonClicked)
+                    if (mouseEvent.Type == MouseEventType.MOUSE_BUTTON_CLICKED)
                         active = false;
                     return true;
 
-                case MouseButtonReleased:
+                case MOUSE_BUTTON_RELEASED:
                     active = false;
                     return hovered;
 
-                case MouseWheel:
+                case MOUSE_WHEEL:
                     break;
             }
         }
