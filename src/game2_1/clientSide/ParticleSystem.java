@@ -8,6 +8,9 @@ import utility.Vector2;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+/**
+ * A barebones ParticleSystem. This is not done.
+ */
 public class ParticleSystem {
     public Vector2 pos;
     public Color color;

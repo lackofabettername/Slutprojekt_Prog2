@@ -2,6 +2,7 @@ package game2_1.events;
 
 /**
  * @author Respar
+ * @see KeyEventType
  */
 public class KeyEvent extends InputEvent {
 

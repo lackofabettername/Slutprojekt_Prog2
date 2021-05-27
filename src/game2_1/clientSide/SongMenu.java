@@ -13,10 +13,14 @@ import processing.core.PGraphics;
 
 import java.io.File;
 
+//TODO: rename this class
+/**
+ * This is the menu a client uses to select the song that'll play as well as the weapon the player will use.
+ */
 public class SongMenu implements WindowLogic, UIListener {
 
-    Application window;
-    RenderLogic parent;
+    private Application window;
+    private RenderLogic parent;
 
     //region UI
     private final UI ui;
@@ -86,9 +90,10 @@ public class SongMenu implements WindowLogic, UIListener {
     public void render(PGraphics g) {
         g.background(0);
 
+        //If all waiting clients are ready go back to the renderLogic (game)
         parent.handleNetPackets();
         if (parent.currentGameState.readyPlayers == parent.currentGameState.players.size()) {
-            window.setLogic(parent);
+            window.popLogic();
             return;
         }
 
@@ -120,6 +125,7 @@ public class SongMenu implements WindowLogic, UIListener {
             ));
         } else if (caller.parent == fmwWeapons) {
             //This will be way cleaner when it's radio buttons
+
             if (caller == btnWeapon1) {
                 parent.client.send(new NetPacket(
                         NetPacketType.MESSAGE,
@@ -141,6 +147,7 @@ public class SongMenu implements WindowLogic, UIListener {
             }
         } else if (caller == btnReady) {
             txtStatus1.text = "Ready";
+
             parent.client.send(new NetPacket(
                     NetPacketType.MESSAGE,
                     parent.client.id,

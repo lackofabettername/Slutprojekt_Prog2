@@ -159,9 +159,10 @@ public class GameLogic {
         for (ListIterator<Projectile> iterator = gameState.projectiles.listIterator(); iterator.hasNext(); ) {
             Projectile projectile = iterator.next();
 
-            if (projectile.delete) {
+            if (projectile == null || projectile.delete) {
                 //Debug.log("Removed: " + projectile);
                 iterator.remove();
+                continue;
             }
 
             projectile.update(parent.BOUNDS);

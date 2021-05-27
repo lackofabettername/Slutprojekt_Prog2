@@ -5,6 +5,11 @@ import game2_1.events.MouseEvent;
 
 import processing.core.PGraphics;
 
+/**
+ * Used by {@link game2_1.Application} to handle all input events and rendering.
+ * The application is just a window, the WindowLogic is the actual program that runs in the Application.
+ * @see Application
+ */
 public interface WindowLogic {
     /**
      * Called when the window renders the next frame

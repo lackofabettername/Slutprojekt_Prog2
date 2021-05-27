@@ -1,7 +1,7 @@
 package game2_1.clientSide;
 
 import ch.bildspur.postfx.builder.PostFX;
-import game2_1.Application;
+import game2_1.Game;
 import game2_1.GameState;
 import game2_1.WindowLogic;
 import game2_1.clientSide.shaders.BloomPass;
@@ -12,10 +12,8 @@ import game2_1.internet.ClientInfo;
 import game2_1.internet.NetPacket;
 import game2_1.music.BeatHandler;
 import game2_1.music.MusicPlayer;
-
-import processing.core.PGraphics;
-
 import game2_1.serverSide.PlayerLogic;
+import processing.core.PGraphics;
 import utility.Debug;
 import utility.NormalizedMath;
 
@@ -28,12 +26,12 @@ import java.util.Queue;
 
 /**
  * This is the client's main class. It receives gamestates from the server and renders them.
- * It interpolates between gamestate if the client's framerate and server's updaterate dont match.
+ * It interpolates between gamestate if the client's framerate and server's updaterate don't match.
  *
  * @see GameState
  */
 public class RenderLogic implements WindowLogic {
-    private final Application parent;
+    private final Game parent;
 
     //The previous and current gamestate sent from the server
     private GameState previousGameState;
@@ -56,7 +54,7 @@ public class RenderLogic implements WindowLogic {
     private BloomPass bloomPass;
     //endregion
 
-    public RenderLogic(Application parent) {
+    public RenderLogic(Game parent) {
         this.parent = parent;
         previousGameState = new GameState();
         currentGameState = new GameState();
@@ -117,7 +115,7 @@ public class RenderLogic implements WindowLogic {
     public void render(PGraphics g) {
         //Create shaders
         if (postFX == null) {
-            var temp = parent.getApplet();
+            var temp = parent.window.getApplet();
             postFX = new PostFX(temp);
             bloomPass = new BloomPass(temp);
         }
@@ -127,7 +125,7 @@ public class RenderLogic implements WindowLogic {
         //If the game hasn't started yet, enter the songmenu
         //Todo: move this somewhere else?
         if (!currentGameState.gameRunning) {
-            parent.setLogic(new SongMenu(parent, this));
+            parent.window.pushLogic(new SongMenu(parent.window, this));
             return;
         }
 
@@ -150,7 +148,7 @@ public class RenderLogic implements WindowLogic {
                         %1.1f %1.1f
                         %1.2f
                         %s""",
-                parent.getFrameRate(),
+                parent.window.getFrameRate(),
                 t,
                 serverGameState.updateCount,
                 Debug.collectionCompare(clientGameState.projectiles, serverGameState.projectiles)
@@ -183,8 +181,8 @@ public class RenderLogic implements WindowLogic {
             final int pixelsPerSecond = 200;
             final float lookAhead = 0.75f; //How early a beat should be visible. If this is one each beat will be visible one second before they hit
 
-            final float cenX = showBeatsOnCurson ? player.cursor.x : parent.WINDOW_W / 2f;
-            final float cenY = showBeatsOnCurson ? player.cursor.y : parent.WINDOW_H - 15;
+            final float cenX = showBeatsOnCurson ? player.cursor.x : parent.window.WINDOW_W / 2f;
+            final float cenY = showBeatsOnCurson ? player.cursor.y : parent.window.WINDOW_H - 15;
 
             //Draw the coming beats
             g.strokeWeight(1);
@@ -221,7 +219,7 @@ public class RenderLogic implements WindowLogic {
         clientGameState.scores.forEach((playerId, score) ->
                 scoreText.append(String.format("%d: %d\n", playerId, score))
         );
-        g.text(scoreText.toString().trim(), parent.WINDOW_W - 100, 0, 100, 200);
+        g.text(scoreText.toString().trim(), parent.window.WINDOW_W - 100, 0, 100, 200);
         //endregion
 
         //Apply shaders
@@ -250,7 +248,10 @@ public class RenderLogic implements WindowLogic {
 
     @Override
     public void onExit() {
+        parent.close();
+    }
+
+    public void close() {
         clientGameState.music.stop();
-        client.close();
     }
 }

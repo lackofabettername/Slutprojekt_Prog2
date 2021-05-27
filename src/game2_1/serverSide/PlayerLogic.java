@@ -16,13 +16,13 @@ public class PlayerLogic implements Serializable {
     public final transient GameState parent;
     public final transient byte id;
 
-    public static final float r = 20;
+    public static final float RADIUS = 20;
     public Vector2 pos, vel;
     public Vector2 cursor;
 
     public byte weaponType;
 
-    public final transient HashMap<Character, Movement> keyBinds;
+    public final transient HashMap<Character, Movement> KEY_BINDS;
     private final EnumSet<Movement> movement;
 
     //region Constructors
@@ -45,7 +45,7 @@ public class PlayerLogic implements Serializable {
         this.weaponType = weaponType;
 
         //todo: read from file?
-        keyBinds = new HashMap<>(Map.of(
+        KEY_BINDS = new HashMap<>(Map.of(
                 'w', Movement.Up,
                 'a', Movement.Left,
                 's', Movement.Down,
@@ -55,6 +55,12 @@ public class PlayerLogic implements Serializable {
     }
     //endregion
 
+    /**
+     * Update this player. Move the player and handle different forces.
+     *
+     * @param deltaTime The time that passed since the last simulation step
+     * @param bounds    The bounds of the area the player can move inside
+     */
     public void update(float deltaTime, Bounds2 bounds) {
         Vector2 movementForce = new Vector2();
         for (Movement movement : movement)
@@ -62,27 +68,36 @@ public class PlayerLogic implements Serializable {
 
         movementForce.normalize();
 
+        //Make the force larger if the player wants to go in the opposite direction it's using.
+        // Breaking is faster and the controls feel tighter.
         if (movementForce.dot(Vector2.normalize(vel)) < -0.5)
             movementForce.mult(3);
         movementForce.mult(2f);
 
-        if (movementForce.magnitudeSqr() == 0)
+
+        if (movementForce.magnitudeSqr() == 0)//Break faster if the player isn't pressing any movement keys
             vel.mult(0.8f);
         vel.mult(0.94f);
         vel.add(movementForce);
 
         pos.add(vel);
 
-
+        //If the player moves out of bounds, bounce the velocity
         if (pos.x < bounds.x) vel.x *= -1;
         if (pos.x > bounds.x + bounds.w) vel.x *= -1;
         if (pos.y < bounds.y) vel.y *= -1;
         if (pos.y > bounds.y + bounds.h) vel.y *= -1;
 
+        //If the player moves out of bounds, bounce the position.
         pos.x = MathF.bounce(pos.x, bounds.x, bounds.x + bounds.w);
         pos.y = MathF.bounce(pos.y, bounds.y, bounds.y + bounds.h);
     }
 
+    /**
+     * Looks at projectiles and determines if any of them has hit the player,
+     * mark the projectile for deletion and increase the projectile's owner's score.
+     * @param projectiles the Collection of projectiles to search through
+     */
     public void checkIfHit(Collection<Projectile> projectiles) {
         //TODO: more efficient search
 
@@ -95,7 +110,7 @@ public class PlayerLogic implements Serializable {
                 if (projectile.delete) continue;
 
                 if (projectile.checkHit(this)) {
-                    iterator.set(null);
+                    projectile.delete = true;
 
                     parent.scores.compute(projectile.owner, (ignored, oldScore) ->
                             (int) (projectile.strength * 100) + (oldScore != null ? oldScore : 0)
@@ -116,19 +131,19 @@ public class PlayerLogic implements Serializable {
                 case KEY_TYPED -> {
                 }
                 case KEY_PRESSED -> {
-                    if (keyBinds.containsKey(keyEvent.KEY))
-                        movement.add(keyBinds.get(keyEvent.KEY));
+                    if (KEY_BINDS.containsKey(keyEvent.KEY))
+                        movement.add(KEY_BINDS.get(keyEvent.KEY));
                 }
                 case KEY_RELEASED -> {
-                    if (keyBinds.containsKey(keyEvent.KEY))
-                        movement.remove(keyBinds.get(keyEvent.KEY));
+                    if (KEY_BINDS.containsKey(keyEvent.KEY))
+                        movement.remove(KEY_BINDS.get(keyEvent.KEY));
                 }
             }
         } else if (event instanceof MouseEvent mouseEvent) {
 
-            switch (mouseEvent.Type) {
+            switch (mouseEvent.type) {
                 case MOUSE_MOVED -> {
-                    cursor.set(mouseEvent.MouseX, mouseEvent.MouseY);
+                    cursor.set(mouseEvent.mouseX, mouseEvent.mouseY);
                 }
                 case MOUSE_DRAGGED -> {
                 }
@@ -185,15 +200,6 @@ public class PlayerLogic implements Serializable {
         Vector2 force;
         Movement(float x, float y) {
             force = new Vector2(x, y);
-        }
-
-        Movement oposite() {
-            return switch (this) {
-                case Up -> Down;
-                case Down -> Up;
-                case Left -> Right;
-                case Right -> Left;
-            };
         }
     }
 }

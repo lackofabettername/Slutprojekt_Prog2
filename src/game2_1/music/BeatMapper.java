@@ -16,7 +16,6 @@ import java.io.File;
 import java.io.IOException;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
-import java.util.TreeMap;
 
 public class BeatMapper implements WindowLogic, UIListener {
     private final Application window;
@@ -304,21 +303,21 @@ public class BeatMapper implements WindowLogic, UIListener {
 
     @Override
     public void onMouseEvent(MouseEvent event) {
-        this.mouseX = event.MouseX;
-        this.mouseY = event.MouseY;
+        this.mouseX = event.mouseX;
+        this.mouseY = event.mouseY;
 
         if (ui.handleEvent(event))
             return;
 
         if (beats != null) {
-            if (event.Type == MouseEventType.MOUSE_BUTTON_PRESSED) {
+            if (event.type == MouseEventType.MOUSE_BUTTON_PRESSED) {
                 int y = (int) (Math.floor((mouseY - uiHeight) / (window.WINDOW_H - uiHeight) * 3) + 0.5f);
                 if (event.mouseButton() == MouseEvent.LEFT_MOUSE_BUTTON) {
                     beats.addBeat((byte) y, (long) (getHoveredTimeStamp() * 1000), 1);
                 } else if (event.mouseButton() == MouseEvent.RIGHT_MOUSE_BUTTON) {
                     beats.removeBeat((byte) y, (long) (getHoveredTimeStamp() * 1000));
                 }
-            } else if (event.Type == MouseEventType.MOUSE_WHEEL) {
+            } else if (event.type == MouseEventType.MOUSE_WHEEL) {
                 skip(event.scrollWheel() * -100_000L);
             }
 

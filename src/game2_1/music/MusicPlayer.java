@@ -95,7 +95,7 @@ public class MusicPlayer implements Runnable, Serializable {
         try {
             audioOutputLine.start();
 
-            while (status != Status.Stopping && System.currentTimeMillis() < delayedStart) {
+            while (!thread.isInterrupted() && status != Status.Stopping && System.currentTimeMillis() < delayedStart) {
                 status = Status.Waiting;
 
                 Thread.onSpinWait();
@@ -111,7 +111,7 @@ public class MusicPlayer implements Runnable, Serializable {
                 status = Status.Playing;
 
                 int bytesRead;
-                while (playing() && (bytesRead = readFrame()) != -1) {
+                while (!thread.isInterrupted() && playing() && (bytesRead = readFrame()) != -1) {
                     audioOutputLine.write(bytesBuffer, 0, bytesRead);
 
                     while (audioOutputLine.getBufferSize() - audioOutputLine.available() > BUFFER_SIZE * 2)
@@ -134,6 +134,7 @@ public class MusicPlayer implements Runnable, Serializable {
         }
 
         status = Status.Stopped;
+        Debug.log("Musicplayer stop ahdasduhi");
     }
 
     public void start() {

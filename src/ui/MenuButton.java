@@ -52,8 +52,8 @@ public class MenuButton extends MenuObject implements Serializable {
     @Override
     public boolean handleEvent(InputEvent event, Vector2 translation) {
         if (event instanceof MouseEvent mouseEvent) {
-            if (bounds.inBounds(mouseEvent.MouseX - translation.x, mouseEvent.MouseY - translation.y)) {
-                switch (mouseEvent.Type) {
+            if (bounds.inBounds(mouseEvent.mouseX - translation.x, mouseEvent.mouseY - translation.y)) {
+                switch (mouseEvent.type) {
                     case MOUSE_BUTTON_PRESSED:
                         pressed = true;
                         backgroundColor.setLightness(0.4f);
@@ -71,7 +71,7 @@ public class MenuButton extends MenuObject implements Serializable {
                         return true;
                 }
             } else if (pressed) {
-                if (mouseEvent.Type == MouseEventType.MOUSE_DRAGGED)
+                if (mouseEvent.type == MouseEventType.MOUSE_DRAGGED)
                     return true;
             }
         }

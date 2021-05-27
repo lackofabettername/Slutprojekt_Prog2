@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 /**
  * @author Respar
+ * @see MouseEventType
  */
 public class MouseEvent extends InputEvent implements Serializable {
 
@@ -11,9 +12,9 @@ public class MouseEvent extends InputEvent implements Serializable {
     public static final int SCROLL_WHEEL = 2;
     public static final int RIGHT_MOUSE_BUTTON = 3;
 
-    public final MouseEventType Type;
-    public final int MouseX;
-    public final int MouseY;
+    public final MouseEventType type;
+    public final int mouseX;
+    public final int mouseY;
     /**
      * It represents the button used for MOUSE_DRAGGED, pressed, released and clicked.
      * It represents how much was scrolled for MOUSE_WHEEL.
@@ -24,9 +25,9 @@ public class MouseEvent extends InputEvent implements Serializable {
 
         super(InputEventType.MOUSE);
 
-        Type = type;
-        MouseX = mouseX;
-        MouseY = mouseY;
+        this.type = type;
+        this.mouseX = mouseX;
+        this.mouseY = mouseY;
         this.info = info;
     }
     public MouseEvent(MouseEventType type, int mouseX, int mouseY) {
@@ -56,7 +57,7 @@ public class MouseEvent extends InputEvent implements Serializable {
     @Override
     public String toString() {
         return "MouseEvent{" +
-                "TYPE=" + Type +
+                "TYPE=" + type +
                 '}';
     }
 }

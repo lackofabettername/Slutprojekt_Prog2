@@ -9,9 +9,12 @@ import utility.Vector2;
 
 import processing.core.PGraphics;
 
+/**
+ * This class extends the ServerSide's PlayerLogic to add graphical parts.
+ */
 public class Player extends PlayerLogic {
     public Color col;
-    public transient ParticleSystem particles;
+    //public transient ParticleSystem particles;
 
     public Player(PlayerLogic player, byte id) {
         this(
@@ -29,28 +32,28 @@ public class Player extends PlayerLogic {
         super(id, parent, pos, vel, cursor, weaponType);
 
         this.col = color;
-        createParticleSystem(particleSystem);
+//        createParticleSystem(particleSystem);
     }
 
-    public void createParticleSystem() {
-        if (particles != null)
-            return;
-
-        particles = new ParticleSystem(pos, col);
-    }
-    public void createParticleSystem(ParticleSystem ps) {
-        if (particles != null) {
-            return;
-        }
-        if (ps == null) {
-            createParticleSystem();
-            return;
-        }
-
-        particles = ps;
-        particles.pos = pos;
-        particles.color = col;
-    }
+//    public void createParticleSystem() {
+//        if (particles != null)
+//            return;
+//
+//        particles = new ParticleSystem(pos, col);
+//    }
+//    public void createParticleSystem(ParticleSystem ps) {
+//        if (particles != null) {
+//            return;
+//        }
+//        if (ps == null) {
+//            createParticleSystem();
+//            return;
+//        }
+//
+//        particles = ps;
+//        particles.pos = pos;
+//        particles.color = col;
+//    }
 
     public void render(PGraphics g) {
         g.push();
@@ -64,7 +67,7 @@ public class Player extends PlayerLogic {
         g.strokeWeight(3);
         g.noFill();
 
-        g.ellipse(pos.x, pos.y, r * 2, r * 2);
+        g.ellipse(pos.x, pos.y, RADIUS * 2, RADIUS * 2);
 
         g.strokeWeight(1);
         g.line(cursor.x - 10, cursor.y, cursor.x + 10, cursor.y);

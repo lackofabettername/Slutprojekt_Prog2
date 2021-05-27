@@ -96,10 +96,10 @@ public class MenuSlider extends MenuObject implements Serializable {
                 x = bounds.x + t * (bounds.w - bounds.x - padding * 2) + padding;
             }
 
-            Vector2 delta = Vector2.sub(x, y, mouseEvent.MouseX, mouseEvent.MouseY).add(translation);
+            Vector2 delta = Vector2.sub(x, y, mouseEvent.mouseX, mouseEvent.mouseY).add(translation);
             boolean overCircle = delta.magnitudeSqr() < r * r * 1.2f;
 
-            switch (mouseEvent.Type) {
+            switch (mouseEvent.type) {
                 case MOUSE_MOVED:
                     hovered = overCircle;
                     return overCircle;
@@ -111,10 +111,10 @@ public class MenuSlider extends MenuObject implements Serializable {
 
                     if (overCircle || active) {
                         if (vertical) {
-                            t = mouseEvent.MouseY - translation.y - bounds.y - padding;
+                            t = mouseEvent.mouseY - translation.y - bounds.y - padding;
                             t /= bounds.h - bounds.y - padding * 2;
                         } else {
-                            t = mouseEvent.MouseX - translation.x - bounds.x - padding;
+                            t = mouseEvent.mouseX - translation.x - bounds.x - padding;
                             t /= bounds.w - bounds.x - padding * 2;
                         }
                         t = MathF.clamp(t, 0, 1);
@@ -122,7 +122,7 @@ public class MenuSlider extends MenuObject implements Serializable {
                         parent.uiEvent(this);
                     }
 
-                    if (mouseEvent.Type == MouseEventType.MOUSE_BUTTON_CLICKED)
+                    if (mouseEvent.type == MouseEventType.MOUSE_BUTTON_CLICKED)
                         active = false;
                     return true;
 

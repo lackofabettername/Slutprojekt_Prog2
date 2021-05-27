@@ -119,7 +119,7 @@ public class MenuDropdownFramework extends MenuFramework {
     @Override
     public boolean handleEvent(InputEvent event, Vector2 translation) {
         if (event instanceof MouseEvent mouseEvent) {
-            if (bounds.inBounds(mouseEvent.MouseX - translation.x, mouseEvent.MouseY - translation.y)) {
+            if (bounds.inBounds(mouseEvent.mouseX - translation.x, mouseEvent.mouseY - translation.y)) {
                 expanded = true;
 
                 super.handleEvent(event, translation);

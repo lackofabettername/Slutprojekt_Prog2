@@ -7,11 +7,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.net.*;
 import java.util.ArrayDeque;
-import java.util.Arrays;
 import java.util.Queue;
-import java.util.concurrent.DelayQueue;
-import java.util.concurrent.Delayed;
-import java.util.concurrent.TimeUnit;
 
 public abstract class IO<T extends Serializable> implements Runnable {
     public static final int ServerPort = 60000;
@@ -62,7 +58,7 @@ public abstract class IO<T extends Serializable> implements Runnable {
         }
 
         socket.close();
-        Debug.log("IO closed");
+        Debug.log("IO [" + thread.getName() + "] closed");
 
         onClose();
     }

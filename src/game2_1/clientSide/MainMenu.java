@@ -16,10 +16,13 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 
+/**
+ * This is the games MainMenu, it is the first thing you see when you start the game.
+ */
 public class MainMenu implements WindowLogic, UIListener {
-    final Game parent;
-    final Application window;
-    final UI ui;
+    private final Game parent;
+    private final Application window;
+    private final UI ui;
 
     private final MenuButton btnStartServer, btnStopServer;
     private final MenuButton btnStartClient, btnStopClient;
@@ -34,49 +37,49 @@ public class MainMenu implements WindowLogic, UIListener {
 
         float padding = 5;
 
-        MenuFramework framework = new MenuFramework("Menu", this, padding, padding, window.WINDOW_W - padding * 2, window.WINDOW_H - padding * 2);
+        MenuFramework framework = new MenuFramework("Main menu framework", this, padding, padding, window.WINDOW_W - padding * 2, window.WINDOW_H - padding * 2);
 
         //region Add elements
         //region Server
-        MenuFramework server = new MenuFramework("Server pane");
-        server.addMenuObject(btnStartServer = new MenuButton("Start Server", 18));
-        server.addMenuObject(btnStopServer = new MenuButton("Stop Server", 18));
-        server.addMenuObject(lblServerStat = new MenuText("Server Status", 18), 2, 0, 3, 1);
-        framework.addMenuObject(server, 1);
+        MenuFramework serverFramework = new MenuFramework("Server framework");
+
+        serverFramework.addMenuObject(btnStartServer = new MenuButton("Start Server", 18));
+        serverFramework.addMenuObject(btnStopServer = new MenuButton("Stop Server", 18));
+        serverFramework.addMenuObject(lblServerStat = new MenuText("Server Status", 18), 2, 0, 3, 1);
+
+        framework.addMenuObject(serverFramework, 1);
         //endregion
 
         //region Client
-        MenuFramework client = new MenuFramework("Client pane");
-        client.addMenuObject(btnStartClient = new MenuButton("Start Client", 18));
-        client.addMenuObject(btnStopClient = new MenuButton("Stop Client", 18));
+        MenuFramework clientFramework = new MenuFramework("Client framework");
+        clientFramework.addMenuObject(btnStartClient = new MenuButton("Start Client", 18));
+        clientFramework.addMenuObject(btnStopClient = new MenuButton("Stop Client", 18));
 
-        MenuFramework clientStats = new MenuFramework("Client Status pane");
+        MenuFramework clientStats = new MenuFramework("Client Status framework");
         clientStats.addMenuObject(lblClientStat = new MenuText("Client Status", 18), 0, 0, 1, 3);
 
         clientStats.addMenuObject(txfClientAddress = new MenuTextField("address", 14), 0, 3);
-        client.addMenuObject(clientStats, 2, 0, 3, 1);
+        clientFramework.addMenuObject(clientStats, 2, 0, 3, 1);
 
-        framework.addMenuObject(client, 1);
+        framework.addMenuObject(clientFramework, 1);
         //endregion
 
         //region Start clientSide
-        MenuFramework startPane = new MenuFramework("Start pane");
+        MenuFramework startFramework = new MenuFramework("Start framework");
 
-        startPane.addMenuObject(btnStartGame = new MenuButton("Start Game", 32), 0, 0, 5, 1);
-        startPane.addMenuObject(btnMapSong = new MenuButton("Map song", 12), 5, 0);
+        startFramework.addMenuObject(btnStartGame = new MenuButton("Start Game", 32), 0, 0, 5, 1);
+        startFramework.addMenuObject(btnMapSong = new MenuButton("Map song", 12), 5, 0);
 
-        framework.addMenuObject(startPane, 1);
+        framework.addMenuObject(startFramework, 1);
         //endregion
         //endregion
 
         //region Fit
         framework.fitElements(padding * 2);
-        server.fitElements(padding, 0);
-        client.fitElements(padding, 0);
+        serverFramework.fitElements(padding, 0);
+        clientFramework.fitElements(padding, 0);
         clientStats.fitElements(padding, 0);
-        startPane.fitElements(padding, 0);
-
-        //dropdown.fitElements(padding);
+        startFramework.fitElements(padding, 0);
         //endregion
 
         ui = new UI(window, framework);
@@ -86,19 +89,20 @@ public class MainMenu implements WindowLogic, UIListener {
     public void render(PGraphics g) {
         g.background(0);
 
+        //Update the server statistics
         if (parent.server != null) {
             lblServerStat.text = "Running" +
                     "\n" + parent.server.LocalAddress +
                     "\n" + parent.server.getClientCount() + " connected client" + (parent.server.getClientCount() == 1 ? "" : "s");
+        }
 
-        }// else
-        //    lblServerStat.text = "Off";
-
+        //Update the client statistics if it were to crash
         if (parent.client != null) {
             if (!parent.client.getThread().isAlive())
                 lblClientStat.text = "dead";
         }
 
+        //Render the menu
         ui.onRender(g);
     }
     @Override
@@ -153,9 +157,9 @@ public class MainMenu implements WindowLogic, UIListener {
 
             lblClientStat.text = "Off";
         } else if (caller == btnStartGame) {
-            parent.window.setLogic(parent.clientSide);
+            parent.window.pushLogic(parent.clientSide);
         } else if (caller == btnMapSong) {
-            parent.window.setLogic(new BeatMapper(parent.window));
+            parent.window.pushLogic(new BeatMapper(parent.window));
         }
     }
 

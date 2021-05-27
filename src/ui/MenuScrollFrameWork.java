@@ -146,14 +146,14 @@ public class MenuScrollFrameWork extends MenuFramework {
     @Override
     public boolean handleEvent(InputEvent event, Vector2 translation) {
         if (event instanceof MouseEvent mouseEvent) {
-            float x = mouseEvent.MouseX - translation.x;
-            float y = mouseEvent.MouseY - translation.y;
+            float x = mouseEvent.mouseX - translation.x;
+            float y = mouseEvent.mouseY - translation.y;
 
             if (scrollbarX) {
                 if (scrollbarActiveX || (y > bounds.h + bounds.y - scrollbarThickness && y < bounds.y + bounds.h)) {
                     scrollBarColorX.setAlpha(0.6f);
 
-                    switch (mouseEvent.Type) {
+                    switch (mouseEvent.type) {
                         case MOUSE_BUTTON_PRESSED -> scrollbarActiveX = true;
                         case MOUSE_BUTTON_RELEASED -> scrollbarActiveX = false;
                         case MOUSE_DRAGGED -> {
@@ -182,7 +182,7 @@ public class MenuScrollFrameWork extends MenuFramework {
                 if (scrollbarActiveY || (x > bounds.w + bounds.x - scrollbarThickness && x < bounds.x + bounds.w)) {
                     scrollBarColorY.setAlpha(0.6f);
 
-                    switch (mouseEvent.Type) {
+                    switch (mouseEvent.type) {
                         case MOUSE_BUTTON_PRESSED -> scrollbarActiveY = true;
                         case MOUSE_BUTTON_RELEASED -> scrollbarActiveY = false;
                         case MOUSE_DRAGGED -> {

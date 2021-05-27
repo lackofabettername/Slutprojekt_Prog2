@@ -137,8 +137,6 @@ public class GameState implements Serializable {
                     //TODO: disconnect client instead of crashing
                 }
 
-                Debug.log(Thread.getAllStackTraces().toString().replaceAll(", ", ",\n"));
-
                 long startDelay = music.getStartDelay();
                 music.stop();
                 try {

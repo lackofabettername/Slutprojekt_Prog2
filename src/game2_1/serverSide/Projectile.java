@@ -6,20 +6,23 @@ import utility.Vector2;
 import processing.core.PGraphics;
 
 import java.io.Serializable;
-import java.util.UUID;
 
+//TODO: create abstract Projectile class and make different projectile types that extend it.
+/**
+ * A projectile, shot by players.
+ */
 public class Projectile implements Serializable {
     public final short id;
+    public final byte owner;
 
-    public static final float r = 5;
+    public static final float RADIUS = 5;
 
     public final float strength;
 
     public Vector2 pos, vel;
     public boolean delete; //todo: transient?
-    public byte owner;
 
-    private static short teasmdopsa = 0;
+    private static short projectileIDAccumulator = 0;
 
     public Projectile(byte owner, float strength, Vector2 pos, Vector2 vel, short id) {
         this.owner = owner;
@@ -30,13 +33,20 @@ public class Projectile implements Serializable {
     }
 
     public Projectile(byte owner, float strength, Vector2 pos, Vector2 vel) {
-        this(owner, strength, pos, vel, teasmdopsa++);
+        this(owner, strength, pos, vel, projectileIDAccumulator++);
     }
 
+    /**
+     * @return true if this projectile has hit the given player.
+     */
     public boolean checkHit(PlayerLogic playerLogic) {
-        return Vector2.sub(playerLogic.pos, pos).magnitudeSqr() < (PlayerLogic.r + r) * (PlayerLogic.r + r);
+        return Vector2.sub(playerLogic.pos, pos).magnitudeSqr() < (PlayerLogic.RADIUS + RADIUS) * (PlayerLogic.RADIUS + RADIUS);
     }
 
+    /**
+     * Update the projectile.
+     * @param bounds The bounds where this projectile can be, it is marked for deletion if it goes outside said bounds.
+     */
     public void update(Bounds2 bounds) {
         pos.add(vel);
 
@@ -44,6 +54,9 @@ public class Projectile implements Serializable {
             delete = true;
     }
 
+    /**
+     * Render this projectile to the PGraphics.
+     */
     public void render(PGraphics g) {
         g.push();
 
@@ -51,9 +64,9 @@ public class Projectile implements Serializable {
         g.noFill();
 
         if (strength != 0)
-            g.ellipse(pos.x, pos.y, r * 2 * strength, r * 2);
+            g.ellipse(pos.x, pos.y, RADIUS * 2 * strength, RADIUS * 2);
         else
-            g.ellipse(pos.x, pos.y, r * 2, r * 2);
+            g.ellipse(pos.x, pos.y, RADIUS * 2, RADIUS * 2);
 
         g.pop();
     }
@@ -72,6 +85,7 @@ public class Projectile implements Serializable {
 
         return id == that.id;
     }
+
     @Override
     public int hashCode() {
         return id;

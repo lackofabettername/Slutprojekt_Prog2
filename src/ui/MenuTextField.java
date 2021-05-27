@@ -83,16 +83,16 @@ public class MenuTextField extends MenuObject implements Serializable {
 
         if (event instanceof MouseEvent mouseEvent) {
 
-            if (bounds.inBounds(mouseEvent.MouseX - translation.x, mouseEvent.MouseY - translation.y)) {
+            if (bounds.inBounds(mouseEvent.mouseX - translation.x, mouseEvent.mouseY - translation.y)) {
                 backgroundColor.setAlpha(1);
 
-                if (mouseEvent.Type == MouseEventType.MOUSE_BUTTON_PRESSED) {
+                if (mouseEvent.type == MouseEventType.MOUSE_BUTTON_PRESSED) {
                     if (!active) animationStart();
                     active = true;
                 }
 
                 return hovered = true;
-            } else if (active && mouseEvent.Type != MouseEventType.MOUSE_BUTTON_PRESSED) {
+            } else if (active && mouseEvent.type != MouseEventType.MOUSE_BUTTON_PRESSED) {
                 return true;
             }
         } else if (active) {

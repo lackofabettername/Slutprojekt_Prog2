@@ -55,7 +55,7 @@ public class Game {
 
         //Create the various window logics
         Debug.logPush("Starting UI...");
-        clientSide = new RenderLogic(window);
+        clientSide = new RenderLogic(this);
         menu = new MainMenu(this);
         window.setLogic(menu);
         Debug.logPop("UI started");
@@ -92,7 +92,7 @@ public class Game {
      * @see java.net.DatagramSocket
      */
     public void startServer() throws SocketException {
-        server = new Server(serverSide);
+        server = new Server(this);
         server.start();
 
         Debug.decorateThreadOutput(server.getThread(), Foreground.Magenta);
@@ -165,6 +165,54 @@ public class Game {
                 clientSide.client = null;
         }
         client = null;
+    }
+
+    /**
+     * Close the game and stop the application
+     */
+    public void close() {//fixme
+        window.setLogic(null);
+
+        Debug.logPush("Closing ClientSide...");
+        if (clientSide != null)
+            clientSide.close();
+        Debug.logPop("ClientSide closed.");
+
+        Debug.logPush("Closing Client...");
+        if (client != null)
+            client.close();
+        Debug.logPop("Client closed.");
+
+        Debug.logPush("Closing Server...");
+        if (server != null)
+            server.close();
+        Debug.logPop("Server closed.");
+
+        Debug.logPush("Closing Window...");
+        if (window != null)
+            window.close();
+        Debug.logPop("Window closed.");
+
+        //Debug.log(Thread.getAllStackTraces().toString().replaceAll(", ", ",\n"));
+
+        try {
+            Thread.sleep(250);
+        } catch (InterruptedException ignored) {
+        }
+
+        Thread.getAllStackTraces().forEach((thread, ignored) -> {
+            Debug.logAll(thread, thread.isAlive(),thread.getState());
+//            try {
+//                thread.interrupt();
+//            } catch(Throwable ignored2) {
+//
+//            }
+        });
+
+        Debug.log("Closing logFile.");
+        Debug.closeLog();
+
+        Runtime.getRuntime().halt(0);
     }
 
     public static void main(String[] args) throws UnknownHostException {

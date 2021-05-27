@@ -117,9 +117,9 @@ public class MenuNumberField extends MenuObject implements Serializable {
     public boolean handleEvent(InputEvent event, Vector2 translation) {//TODO fixed period logic
 
         if (event instanceof MouseEvent mouseEvent) {
-            if (active && mouseEvent.Type == MouseEventType.MOUSE_DRAGGED) {
+            if (active && mouseEvent.type == MouseEventType.MOUSE_DRAGGED) {
                 if (previousMouseX != -1) {
-                    accumulator += (mouseEvent.MouseX - previousMouseX) * resolution;
+                    accumulator += (mouseEvent.mouseX - previousMouseX) * resolution;
                     for (; accumulator >= 1; --accumulator)
                         value += stepSize;
                     for (; accumulator <= -1; ++accumulator)
@@ -129,20 +129,20 @@ public class MenuNumberField extends MenuObject implements Serializable {
                     empty = false;
                     parent.uiEvent(this);
                 }
-                previousMouseX = mouseEvent.MouseX;
+                previousMouseX = mouseEvent.mouseX;
             }
 
-            if (bounds.inBounds(mouseEvent.MouseX - translation.x, mouseEvent.MouseY - translation.y)) {
+            if (bounds.inBounds(mouseEvent.mouseX - translation.x, mouseEvent.mouseY - translation.y)) {
                 backgroundColor.setAlpha(1);
 
-                if (mouseEvent.Type == MouseEventType.MOUSE_BUTTON_PRESSED) {
+                if (mouseEvent.type == MouseEventType.MOUSE_BUTTON_PRESSED) {
                     if (!active) animationStart();
                     active = true;
-                    previousMouseX = mouseEvent.MouseX;
+                    previousMouseX = mouseEvent.mouseX;
                 }
 
                 return hovered = true;
-            } else if (active && mouseEvent.Type != MouseEventType.MOUSE_BUTTON_PRESSED) {
+            } else if (active && mouseEvent.type != MouseEventType.MOUSE_BUTTON_PRESSED) {
                 return true;
             }
         } else if (active) {

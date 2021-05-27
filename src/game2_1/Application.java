@@ -1,11 +1,12 @@
 package game2_1;
 
-import game2_1.events.*;
-import utility.Bounds2;
-import utility.Debug;
-
+import game2_1.events.KeyEvent;
+import game2_1.events.KeyEventType;
+import game2_1.events.MouseEvent;
+import game2_1.events.MouseEventType;
 import processing.core.PApplet;
 import processing.core.PGraphics;
+import utility.Bounds2;
 
 import java.util.EmptyStackException;
 import java.util.Stack;
@@ -63,6 +64,14 @@ public final class Application {
             Thread.onSpinWait();
 
         running = true;
+    }
+
+    public void close() {
+        if (!running)
+            return;
+
+        window.exit();
+        windowThread.interrupt();
     }
 
     /**
@@ -152,10 +161,9 @@ public final class Application {
 
         @Override
         public void dispose() {// Called before PApplet closes, can be used to detect crashes.
-            Debug.closeLog();
-            currentLogic.onExit();
-
             running = false;
+
+            currentLogic.onExit();
         }
 
 
