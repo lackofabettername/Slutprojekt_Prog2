@@ -114,7 +114,7 @@ public class SongMenu implements WindowLogic, UIListener {
     public void uiEvent(MenuObject caller) {
         if (caller.parent == fslSongSelector) {
             parent.client.send(new NetPacket(
-                    NetPacketType.Message,
+                    NetPacketType.MESSAGE,
                     parent.client.id,
                     "Selected" + caller.name
             ));
@@ -122,19 +122,19 @@ public class SongMenu implements WindowLogic, UIListener {
             //This will be way cleaner when it's radio buttons
             if (caller == btnWeapon1) {
                 parent.client.send(new NetPacket(
-                        NetPacketType.Message,
+                        NetPacketType.MESSAGE,
                         parent.client.id,
                         "Weapon0"
                 ));
             } else if (caller == btnWeapon2) {
                 parent.client.send(new NetPacket(
-                        NetPacketType.Message,
+                        NetPacketType.MESSAGE,
                         parent.client.id,
                         "Weapon1"
                 ));
             } else if (caller == btnWeapon3) {
                 parent.client.send(new NetPacket(
-                        NetPacketType.Message,
+                        NetPacketType.MESSAGE,
                         parent.client.id,
                         "Weapon2"
                 ));
@@ -142,7 +142,7 @@ public class SongMenu implements WindowLogic, UIListener {
         } else if (caller == btnReady) {
             txtStatus1.text = "Ready";
             parent.client.send(new NetPacket(
-                    NetPacketType.Message,
+                    NetPacketType.MESSAGE,
                     parent.client.id,
                     "Client Ready"
             ));

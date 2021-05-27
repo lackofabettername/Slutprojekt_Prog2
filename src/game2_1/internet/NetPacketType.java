@@ -1,16 +1,16 @@
 package game2_1.internet;
 
 public enum NetPacketType {
-    GameState,
-    GameStateDelta,
+    GAME_STATE,
+    GAME_STATE_DELTA,
 
-    ClientInput,
+    CLIENT_INPUT,
 
-    Information,
+    INFORMATION,
 
-    ServerCommand,
+    SERVER_COMMAND,
 
-    Message,
+    MESSAGE,
 
-    Empty
+    EMPTY
 }

@@ -5,7 +5,6 @@ import game2_1.clientSide.RenderLogic;
 import game2_1.internet.Client;
 import game2_1.internet.NetPacket;
 import game2_1.internet.Server;
-import game2_1.music.BeatMapper;
 import game2_1.serverSide.GameLogic;
 import utility.Debug;
 import utility.style.Foreground;
@@ -87,13 +86,13 @@ public class Game {
     /**
      * Start the server and create the ServerSide logic.
      *
-     * @throws SocketException Thrown by the Server's DatagramSocket
+     * @throws SocketException Thrown by the Server's DatagramSocket.
      * @see Server
      * @see GameLogic
      * @see java.net.DatagramSocket
      */
     public void startServer() throws SocketException {
-        server = new Server(this);
+        server = new Server(serverSide);
         server.start();
 
         Debug.decorateThreadOutput(server.getThread(), Foreground.Magenta);
@@ -133,7 +132,7 @@ public class Game {
 
         for (int i = 0; i < 5; ++i) {
             //Send a blank package with nothing in it. This is to tell the server that the client exists
-            client.send(NetPacket.EmptyPacket);
+            client.send(NetPacket.EMPTY_PACKET);
 
             try {
                 Thread.sleep(100);

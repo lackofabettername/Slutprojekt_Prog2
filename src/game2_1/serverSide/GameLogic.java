@@ -91,7 +91,7 @@ public class GameLogic {
                 }
             }
 
-            server.send(new NetPacket(NetPacketType.GameState, NetPacket.Server, gameState));
+            server.send(new NetPacket(NetPacketType.GAME_STATE, NetPacket.SERVER, gameState));
         }
     }
 
@@ -100,9 +100,9 @@ public class GameLogic {
         for (NetPacket packet : input) {
             byte id = packet.sender();
             switch (packet.type()) {
-                case GameState, GameStateDelta -> throw new UnsupportedOperationException("error");//TODO: Just ignore it instead? or disconnect the client?
-                case ClientInput -> handleClientInput(id, (InputEvent) packet.object());
-                case Message -> {//Todo: use dedicated classes instead of strings
+                case GAME_STATE, GAME_STATE_DELTA -> throw new UnsupportedOperationException("error");//TODO: Just ignore it instead? or disconnect the client?
+                case CLIENT_INPUT -> handleClientInput(id, (InputEvent) packet.object());
+                case MESSAGE -> {//Todo: use dedicated classes instead of strings
 
                     if (packet.object() instanceof String message) {
                         if (message.equals("Client Ready")) {
@@ -114,7 +114,7 @@ public class GameLogic {
                                 if (gameState.readyPlayers == gameState.players.size()) {
                                     gameState.gameRunning = true;
 
-                                    server.send(new NetPacket(NetPacketType.ServerCommand, NetPacket.Server, "Start Music" + (System.currentTimeMillis() + 500)));
+                                    server.send(new NetPacket(NetPacketType.SERVER_COMMAND, NetPacket.SERVER, "Start Music" + (System.currentTimeMillis() + 500)));
                                     gameState.music.start(0, 500);
                                 }
                             }
@@ -136,7 +136,7 @@ public class GameLogic {
                         }
                     }
                 }
-                case Empty -> {
+                case EMPTY -> {
                 }
             }
         }
@@ -191,8 +191,8 @@ public class GameLogic {
             //Send the client the information it needs to start.
             server.sendTo(
                     new NetPacket(
-                            NetPacketType.Information,
-                            NetPacket.Server,
+                            NetPacketType.INFORMATION,
+                            NetPacket.SERVER,
                             new ClientInfo(
                                     clientID,
                                     ups,

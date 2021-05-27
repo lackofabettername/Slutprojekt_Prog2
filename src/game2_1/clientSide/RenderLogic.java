@@ -68,20 +68,20 @@ public class RenderLogic implements WindowLogic {
             Queue<NetPacket> queue = client.getAndClearReceiveQueue();
             for (NetPacket packet : queue) {
                 switch (packet.type()) {
-                    case GameState -> {
+                    case GAME_STATE -> {
                         previousGameState = currentGameState;
                         currentGameState = (GameState) packet.object();
                         gameStateTimeStamp = packet.timeStamp();
 
                         player = currentGameState.players.get(client.id);
                     }
-                    case GameStateDelta -> {//todo
+                    case GAME_STATE_DELTA -> {//todo
                         //previousGameState.mutableMembers = currentGameState.mutableMembers;
                         //currentGameState.mutableMembers = (GameState.MutableGameState) packet.object();
                         //gameStateTimeStamp = packet.timeStamp();
                     }
-                    case ClientInput -> throw new UnsupportedOperationException("This should not happen"); //todo: ignore it? or disconnect from the server?
-                    case Information -> {//Sent once from the server when the client (this) connects.
+                    case CLIENT_INPUT -> throw new UnsupportedOperationException("This should not happen"); //todo: ignore it? or disconnect from the server?
+                    case INFORMATION -> {//Sent once from the server when the client (this) connects.
                         ClientInfo info = (ClientInfo) packet.object();
                         Debug.log(info);
 
@@ -95,7 +95,7 @@ public class RenderLogic implements WindowLogic {
                         for (byte id : clientGameState.players.keySet())
                             clientGameState.players.compute(id, (ignored, player) -> new Player(Objects.requireNonNull(player), id));
                     }
-                    case ServerCommand -> {
+                    case SERVER_COMMAND -> {
                         String command = (String) packet.object();
                         if (command.startsWith("Start Music")) {//Start the music player with the delayed start specified by the server. This is so all clients start at the same time regardless of their ping
                             clientGameState.music = new MusicPlayer(clientGameState.songPath + "song.wav", 1);
@@ -106,7 +106,7 @@ public class RenderLogic implements WindowLogic {
                             clientGameState.music.start(0, startDelay);
                         }
                     }
-                    case Empty -> {
+                    case EMPTY -> {
                     }
                 }
             }
