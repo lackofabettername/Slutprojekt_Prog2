@@ -39,14 +39,6 @@ public class GameLogic {
         gameState = new GameState(file);
         readyPlayers = new HashSet<>();
 
-        //Notice: remove this
-        //region Add dummy player
-        onClientJoin((byte) 100);
-        gameState.players.get((byte) 100).pos.set(10, 10);
-        readyPlayers.add((byte) 100);
-        ++gameState.readyPlayers;
-        //endregion
-
         gameState.music = new DummyMusicPlayer("", 1.0f);
     }
 
@@ -203,13 +195,7 @@ public class GameLogic {
                     clientID
             );
         } catch (Exception e) {
-            if (clientID == 100) {
-                //There's always an exception thrown when the dummy player is added
-                // since the server doesn't have an InetAddress associated with the dummyplayer's id.
-                Debug.logError("Suppressed " + e);
-                Debug.logWarning("Remove this try catch when the dummy player is removed");
-            } else
-                throw e;
+            Debug.logError(e);
         }
     }
 }

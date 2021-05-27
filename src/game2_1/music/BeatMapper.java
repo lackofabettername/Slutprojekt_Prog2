@@ -97,6 +97,10 @@ public class BeatMapper implements WindowLogic, UIListener {
         ui.onRender(g);
 
         if (musicPlayer != null) {
+            if (musicPlayer.Stopped()){
+                stop();
+            }
+
             float time = getTime();
 
             g.strokeWeight(1);

@@ -109,7 +109,7 @@ public class MusicPlayer implements Runnable, Serializable {
                 status = Status.Playing;
 
                 int bytesRead;
-                while (!thread.isInterrupted() && playing() && (bytesRead = readFrame()) != -1) {
+                while (!thread.isInterrupted() && playing() && (bytesRead = readFrame()) > 0) {
                     audioOutputLine.write(bytesBuffer, 0, bytesRead);
 
                     while (audioOutputLine.getBufferSize() - audioOutputLine.available() > BUFFER_SIZE * 2)
@@ -185,7 +185,12 @@ public class MusicPlayer implements Runnable, Serializable {
         for (; readSamples < BUFFER_SIZE; readSamples += 4) {
             for (t += playbackRate; t >= 1; --t) {
                 lastFrame = frame;
-                frame = readFrame(audioInputStream.readNBytes(4));
+                byte[] temp = audioInputStream.readNBytes(4);
+
+                if (temp.length == 0)//End of file
+                    return readSamples;
+
+                frame = readFrame(temp);
 
                 short left = (short) (frame & 65535);
                 short right = (short) (frame >>> 16);

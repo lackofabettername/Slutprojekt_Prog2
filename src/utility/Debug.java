@@ -15,13 +15,15 @@ import static utility.Reversed.reversed;
  */
 @SuppressWarnings("UnusedReturnValue")
 public class Debug {
-    public static final int ERROR = 0;
-    public static final int WARNING = 1;
-    public static final int INFO = 2;
-    public static final int NOTHING = 3;
+    public static final int DEBUG = 0;
+    public static final int ERROR = 1;
+    public static final int WARNING = 2;
+    public static final int INFO = 3;
+    public static final int NOTHING = 4;
     /**
      * How much should be outputed to the console?
-     * <p>{@link #ERROR} means everything.
+     * <p>{@link #DEBUG} means everything.
+     * <p>{@link #ERROR} means errors.
      * <p>{@link #WARNING} means warnings but no errors.
      * <p>{@link #INFO} is just normal plain text.
      */

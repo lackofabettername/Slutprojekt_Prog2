@@ -13,7 +13,9 @@ import game2_1.internet.NetPacket;
 import game2_1.music.BeatHandler;
 import game2_1.music.MusicPlayer;
 import game2_1.serverSide.PlayerLogic;
+
 import processing.core.PGraphics;
+
 import utility.Debug;
 import utility.NormalizedMath;
 
@@ -126,6 +128,9 @@ public class RenderLogic implements WindowLogic {
         if (!currentGameState.gameRunning) {
             parent.window.pushLogic(new SongMenu(parent.window, this));
             return;
+        } else if (clientGameState.music != null && clientGameState.music.Stopped()) {
+            //Todo: start new game
+            parent.close();
         }
 
         if (previousGameState == null) return;
@@ -138,21 +143,23 @@ public class RenderLogic implements WindowLogic {
         g.background(0);
 
         //notice: this is for debugging, remove this
-        //region Debug
-        g.fill(0);
-        g.rect(g.width / 2f - 100, g.height / 2f - 50, 200, 100);
-        g.fill(1);
+        if (Debug.logLevel <= Debug.DEBUG) {
+            //region Debug
+            g.fill(0);
+            g.rect(g.width / 2f - 100, g.height / 2f - 50, 200, 100);
+            g.fill(1);
 
-        g.text(String.format("""
-                        %1.1f %1.1f
-                        %1.2f
-                        %s""",
-                parent.window.getFrameRate(),
-                t,
-                serverGameState.updateCount,
-                Debug.collectionCompare(clientGameState.projectiles, serverGameState.projectiles)
-        ), g.width / 2f, g.height / 2f);
-        //endregion
+            g.text(String.format("""
+                            %1.1f %1.1f
+                            %1.2f
+                            %s""",
+                    parent.window.getFrameRate(),
+                    t,
+                    serverGameState.updateCount,
+                    Debug.collectionCompare(clientGameState.projectiles, serverGameState.projectiles)
+            ), g.width / 2f, g.height / 2f);
+            //endregion
+        }
 
         //The server doesn't care about graphical things like particle systems. Therefore we can't
         //use the server's gamestates immediately, but must apply them to the local gamestate.

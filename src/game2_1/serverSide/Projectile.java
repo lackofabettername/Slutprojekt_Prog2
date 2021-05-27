@@ -1,6 +1,7 @@
 package game2_1.serverSide;
 
 import utility.Bounds2;
+import utility.MathF;
 import utility.Vector2;
 
 import processing.core.PGraphics;
@@ -8,6 +9,8 @@ import processing.core.PGraphics;
 import java.io.Serializable;
 
 //TODO: create abstract Projectile class and make different projectile types that extend it.
+
+
 /**
  * A projectile, shot by players.
  */
@@ -45,6 +48,7 @@ public class Projectile implements Serializable {
 
     /**
      * Update the projectile.
+     *
      * @param bounds The bounds where this projectile can be, it is marked for deletion if it goes outside said bounds.
      */
     public void update(Bounds2 bounds) {
@@ -63,10 +67,11 @@ public class Projectile implements Serializable {
         g.stroke(1, 0, 0);
         g.noFill();
 
-        if (strength != 0)
-            g.ellipse(pos.x, pos.y, RADIUS * 2 * strength, RADIUS * 2);
-        else
-            g.ellipse(pos.x, pos.y, RADIUS * 2, RADIUS * 2);
+        float d = RADIUS * 2 * MathF.lerp(strength, 1, 0.1f);
+        if (strength == 0) d = RADIUS * 2;
+
+        g.ellipse(pos.x, pos.y, d, d);
+
 
         g.pop();
     }
