@@ -43,6 +43,7 @@ public class Game {
         try {
             //Debug will print everything into this file as well as the console
             Debug.logFile = new PrintWriter(new BufferedOutputStream(new FileOutputStream("Output.log")));
+            Debug.logLevel = Debug.INFO;
         } catch (FileNotFoundException e) {
             Debug.logError(e);
         }
@@ -95,7 +96,7 @@ public class Game {
         server = new Server(this);
         server.start();
 
-        Debug.decorateThreadOutput(server.getThread(), Foreground.Magenta);
+        //Debug.decorateThreadOutput(server.getThread(), Foreground.Magenta);
 
         serverSide = new GameLogic(window, server, SERVER_UPS);
     }
@@ -109,7 +110,11 @@ public class Game {
     public void closeServer() {
         if (server != null) {
             //serverSide.stop();
-            server.close();
+            try {
+                server.close();
+            } catch (InterruptedException e) {
+                Debug.logError(e);
+            }
         }
         server = null;
         serverSide = null;
@@ -160,7 +165,11 @@ public class Game {
      */
     public void closeClient() {
         if (client != null) {
-            client.close();
+            try {
+                client.close();
+            } catch (InterruptedException e) {
+                Debug.logError(e);
+            }
             if (clientSide != null)
                 clientSide.client = null;
         }
@@ -173,45 +182,63 @@ public class Game {
     public void close() {//fixme
         window.setLogic(null);
 
+        Debug.log();
         Debug.logPush("Closing ClientSide...");
-        if (clientSide != null)
+        if (clientSide != null) {
             clientSide.close();
+        }
         Debug.logPop("ClientSide closed.");
 
+        Debug.log();
         Debug.logPush("Closing Client...");
-        if (client != null)
-            client.close();
+        if (client != null) {
+            try {
+                client.close();
+            } catch (InterruptedException ignored) {
+                Debug.logWarning("Failed to join ClientThread");
+            }
+        }
         Debug.logPop("Client closed.");
 
+        Debug.log();
         Debug.logPush("Closing Server...");
-        if (server != null)
-            server.close();
+        if (server != null) {
+            try {
+                server.close();
+            } catch (InterruptedException ignored) {
+                Debug.logWarning("Failed to join ClientThread");
+            }
+        }
         Debug.logPop("Server closed.");
 
+        Debug.log();
         Debug.logPush("Closing Window...");
-        if (window != null)
+        if (window != null) {
             window.close();
+        }
         Debug.logPop("Window closed.");
 
-        //Debug.log(Thread.getAllStackTraces().toString().replaceAll(", ", ",\n"));
+        Debug.log();
 
-        try {
-            Thread.sleep(250);
-        } catch (InterruptedException ignored) {
-        }
 
-        Thread.getAllStackTraces().forEach((thread, ignored) -> {
-            Debug.logAll(thread, thread.isAlive(),thread.getState());
-//            try {
-//                thread.interrupt();
-//            } catch(Throwable ignored2) {
+//        try {
+//            Thread.sleep(250);
+//        } catch (InterruptedException ignored) {
+//        }
 //
-//            }
-        });
+//        Thread.getAllStackTraces().forEach((thread, ignored) -> {
+//            Debug.logAll(thread, thread.isAlive(),thread.getState());
+////            try {
+////                thread.interrupt();
+////            } catch(Throwable ignored2) {
+////
+////            }
+//        });
 
         Debug.log("Closing logFile.");
         Debug.closeLog();
 
+        //I've no idea why this is needed but the program wont exit using System.exit(0);
         Runtime.getRuntime().halt(0);
     }
 

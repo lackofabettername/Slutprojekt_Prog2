@@ -31,7 +31,6 @@ public class MusicPlayer implements Runnable, Serializable {
 
     protected transient long frameOffset, microSecondOffset;
 
-
     //region Constructors
     /**
      * @param audioFilePath Path of the audio file.
@@ -89,7 +88,6 @@ public class MusicPlayer implements Runnable, Serializable {
     }
     //endregion
 
-
     @Override
     public void run() {
         try {
@@ -134,7 +132,6 @@ public class MusicPlayer implements Runnable, Serializable {
         }
 
         status = Status.Stopped;
-        Debug.log("Musicplayer stop ahdasduhi");
     }
 
     public void start() {

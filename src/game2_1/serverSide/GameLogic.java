@@ -108,7 +108,7 @@ public class GameLogic {
                         if (message.equals("Client Ready")) {
                             if (readyPlayers.add(id)) {
                                 ++gameState.readyPlayers;
-                                Debug.log("Client " + id + " ready");
+                                Debug.logNamedShort("Client " + id + " ready");
 
                                 //All players are ready, start the game
                                 if (gameState.readyPlayers == gameState.players.size()) {
@@ -124,13 +124,14 @@ public class GameLogic {
                             //Todo: make sure all players have the song downloaded. Send it to them over the internet?
 
                             //Change the selected music
-                            gameState.songPath = Debug.log("music/" + message.substring(8) + "/");
+                            gameState.songPath = "music/" + message.substring(8) + "/";
+                            Debug.logNamedShort("Set music to " + gameState.songPath);
                             gameState.beats = BeatHandler.load(gameState.songPath + "beats.txt");
                             gameState.music = new DummyMusicPlayer("", 1.0f);
 
                         } else if (message.startsWith("Weapon")) {
                             byte weaponType = Byte.parseByte(message.substring(6));
-                            Debug.log("Switch player " + id + " weaponType to " + weaponType);
+                            Debug.logNamedShort("Switch player " + id + " weaponType to " + weaponType);
                             gameState.players.get(id).weaponType = weaponType;
 
                         }

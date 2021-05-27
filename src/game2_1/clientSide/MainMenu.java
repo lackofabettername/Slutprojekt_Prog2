@@ -116,7 +116,7 @@ public class MainMenu implements WindowLogic, UIListener {
 
     @Override
     public void uiEvent(MenuObject caller) {
-        Debug.logDecorated(caller.name, Foreground.Blue);
+        Debug.logDecorated("MainMenu: " + caller.name, Foreground.Blue);
         if (caller == btnStartServer) {
             try {
                 try {

@@ -36,8 +36,8 @@ public abstract class IO<T extends Serializable> implements Runnable {
 
         InetAddress temp;
         try {
-            Debug.log("local Port    = " + localPort);
-            Debug.log("local address = " + (temp = InetAddress.getLocalHost()));
+            Debug.log(thread.getName() + ": local Port    = " + localPort);
+            Debug.log(thread.getName() + ": local address = " + (temp = InetAddress.getLocalHost()));
 
         } catch (UnknownHostException ignored) {
             temp = null;
@@ -54,18 +54,21 @@ public abstract class IO<T extends Serializable> implements Runnable {
                 receive();
             }
         } catch (IOException e) {
-            Debug.logError(e);
+            if (!thread.isInterrupted())
+                Debug.logError(e);
         }
 
         socket.close();
-        Debug.log("IO [" + thread.getName() + "] closed");
 
         onClose();
     }
 
-    public void close() {
-        if (!thread.isInterrupted())
+    public void close() throws InterruptedException {
+        socket.close();
+        if (!thread.isInterrupted()) {
             thread.interrupt();
+            thread.join();
+        }
     }
 
     protected void receive() throws IOException {

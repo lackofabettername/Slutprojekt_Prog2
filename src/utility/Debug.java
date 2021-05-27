@@ -1,7 +1,5 @@
 package utility;
 
-
-
 import utility.style.Background;
 import utility.style.Font;
 import utility.style.Foreground;
@@ -12,13 +10,28 @@ import java.util.*;
 
 import static utility.Reversed.reversed;
 
-
+/**
+ * Used for printing things to the console in various more advanced ways than System.out.println();
+ */
 @SuppressWarnings("UnusedReturnValue")
 public class Debug {
+    public static final int ERROR = 0;
+    public static final int WARNING = 1;
+    public static final int INFO = 2;
+    public static final int NOTHING = 3;
+    /**
+     * How much should be outputed to the console?
+     * <p>{@link #ERROR} means everything.
+     * <p>{@link #WARNING} means warnings but no errors.
+     * <p>{@link #INFO} is just normal plain text.
+     */
+    public static int logLevel = ERROR;
+
     private static final Object _logLock = new Object();
     private static volatile int _offset;
     private static volatile boolean _isStartOfLine;
-    private static volatile HashMap<Thread, Style[]> threadDecoration = new HashMap<>();
+    @Deprecated
+    private static final HashMap<Thread, Style[]> threadDecoration = new HashMap<>();
 
     public static PrintWriter logFile;
 
@@ -43,33 +56,53 @@ public class Debug {
     }
 
     public static void logError(Throwable error) {
-        synchronized (_logLock) {
-            logError(error.toString().trim());
-            offsetOutput(1);
-            for (StackTraceElement element : error.getStackTrace())
-                logDecorated("at " + element.toString(), Foreground.Red);
-            offsetOutput(-1);
+        if (logLevel <= ERROR) {
+            synchronized (_logLock) {
+                logError(error.toString().trim());
+                offsetOutput(1);
+                for (StackTraceElement element : error.getStackTrace())
+                    logDecorated("at " + element.toString(), Foreground.Red);
+                offsetOutput(-1);
+            }
         }
     }
     public static void logError(String text) {
-        logDecorated(text, Foreground.Red);
+        if (logLevel <= ERROR) {
+            logDecorated(text, Foreground.Red);
+        }
     }
     public static void logError(String text, boolean newLine) {
-        logDecorated(text, newLine, Foreground.Red);
+        if (logLevel <= ERROR) {
+            logDecorated(text, newLine, Foreground.Red);
+        }
     }
 
     public static void logWarning(String text) {
-        logDecorated(text, Foreground.DarkYellow);
+        if (logLevel <= WARNING) {
+            logDecorated(text, Foreground.DarkYellow);
+        }
     }
     public static void logWarning(String text, boolean newLine) {
-        logDecorated(text, newLine, Foreground.DarkYellow);
+        if (logLevel <= WARNING) {
+            logDecorated(text, newLine, Foreground.DarkYellow);
+        }
     }
 
-    public static void logNamed(String text) {
+    public static String logNamed(String text) {
         logNamedProper(text, true);
+        return text;
     }
-    public static void logNamed(String text, boolean newLine) {
+    public static <T> T logNamed(T object) {
+        logNamedProper(object != null ? object.toString() : "null", true);
+        return object;
+    }
+    public static String logNamed(String text, boolean newLine) {
         logNamedProper(text, newLine);
+        return text;
+    }
+    public static <T> T logNamed(T object, boolean newLine) {
+        logNamedProper(object != null ? object.toString() : "null", newLine);
+        return object;
     }
     private static void logNamedProper(String text, boolean newLine) {
         synchronized (_logLock) {
@@ -80,11 +113,22 @@ public class Debug {
             log(text, true);
         }
     }
-    public static void logNamedShort(String text) {
+
+    public static String logNamedShort(String text) {
         logNamedShortProper(text, true);
+        return text;
     }
-    public static void logNamedShort(String text, boolean newLine) {
+    public static <T> T logNamedShort(T object) {
+        logNamedShortProper(object != null ? object.toString() : "null", true);
+        return object;
+    }
+    public static String logNamedShort(String text, boolean newLine) {
         logNamedShortProper(text, newLine);
+        return text;
+    }
+    public static <T> T logNamedShort(T object, boolean newLine) {
+        logNamedShortProper(object != null ? object.toString() : "null", newLine);
+        return object;
     }
     private static void logNamedShortProper(String text, boolean newLine) {
         synchronized (_logLock) {
@@ -201,7 +245,6 @@ public class Debug {
         }
     }
 
-
     public static void logLine() {
         logLine(15);
     }
@@ -215,7 +258,6 @@ public class Debug {
         logDecorated("          ".repeat(length), true, Font.StrikeThrough, color);
     }
 
-
     public static void logPush(String text) {
         log(text);
         offsetOutput(1);
@@ -224,7 +266,6 @@ public class Debug {
         offsetOutput(-1);
         log(text);
     }
-
 
     public static void log() {
         log("", true);
@@ -241,27 +282,27 @@ public class Debug {
         return object;
     }
     public static String log(String text, boolean newLine) {
-        synchronized (_logLock) {
-            if (_isStartOfLine) {
-                System.out.print("\t".repeat(_offset));
-                if (logFile != null) logFile.print("\t".repeat(_offset));
-            }
-
-            if (!threadDecoration.isEmpty()) {
-                for (Style style : threadDecoration.getOrDefault(Thread.currentThread(), new Style[0])) {
-                    System.out.print(style.getCode());
+        if (logLevel <= INFO) {
+            synchronized (_logLock) {
+                if (_isStartOfLine) {
+                    System.out.print("\t".repeat(_offset));
+                    if (logFile != null) logFile.print("\t".repeat(_offset));
                 }
 
-            }
-            System.out.print(text + (newLine ? "\n" : ""));
-            if (logFile != null) logFile.print(text.replaceAll("\u001B\\[[0-9]*m", "") + (newLine ? "\n" : ""));
+                if (!threadDecoration.isEmpty()) {
+                    for (Style style : threadDecoration.getOrDefault(Thread.currentThread(), new Style[0])) {
+                        System.out.print(style.getCode());
+                    }
 
-            _isStartOfLine = newLine;
+                }
+                System.out.print(text + (newLine ? "\n" : ""));
+                if (logFile != null) logFile.print(text.replaceAll("\u001B\\[[0-9]*m", "") + (newLine ? "\n" : ""));
+
+                _isStartOfLine = newLine;
+            }
         }
         return text;
     }
-
-
 
     public static int offsetOutput(int amount) {
         synchronized (_logLock) {
@@ -274,13 +315,10 @@ public class Debug {
         }
     }
 
-
-
+    @Deprecated
     public static void decorateThreadOutput(Thread thread, Style... style) {
         threadDecoration.put(thread, style);
     }
-
-
 
     public static String getCallStack() {
         StringBuilder oup = new StringBuilder();
@@ -312,7 +350,6 @@ public class Debug {
 
         return oup.toString();
     }
-
 
     public static synchronized String intToString(int number, int byteCount) {//lack: Integer.toBinaryString()?
 

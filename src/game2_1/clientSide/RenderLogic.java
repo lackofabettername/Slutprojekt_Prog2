@@ -81,7 +81,7 @@ public class RenderLogic implements WindowLogic {
                     case CLIENT_INPUT -> throw new UnsupportedOperationException("This should not happen"); //todo: ignore it? or disconnect from the server?
                     case INFORMATION -> {//Sent once from the server when the client (this) connects.
                         ClientInfo info = (ClientInfo) packet.object();
-                        Debug.log(info);
+                        Debug.logNamedShort(info);
 
                         client.id = info.clientId();
                         serverUPS = info.serverUPS();
@@ -100,7 +100,6 @@ public class RenderLogic implements WindowLogic {
 
                             long startDelay = Long.parseLong(command.substring(11));
                             startDelay -= System.currentTimeMillis() - packet.timeStamp();
-                            Debug.log(startDelay);
                             clientGameState.music.start(0, startDelay);
                         }
                     }
