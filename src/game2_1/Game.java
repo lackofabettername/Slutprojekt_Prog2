@@ -25,7 +25,7 @@ public class Game {
     /**
      * Updates per second. Changing this number will change the speed of the game.
      */
-    public final int ServerUPS = 30;
+    public final int SERVER_UPS = 30;
 
     public volatile Server server;
     public volatile Client client;
@@ -97,7 +97,7 @@ public class Game {
 
         Debug.decorateThreadOutput(server.getThread(), Foreground.Magenta);
 
-        serverSide = new GameLogic(window, server, ServerUPS);
+        serverSide = new GameLogic(window, server, SERVER_UPS);
     }
 
     /**

@@ -12,7 +12,6 @@ import utility.style.Foreground;
 
 import processing.core.PGraphics;
 
-import java.io.UncheckedIOException;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
