@@ -130,8 +130,8 @@ public class Game {
      * @see Server
      * @see java.net.DatagramSocket
      */
-    public boolean startClient(InetAddress address) throws SocketException {
-        client = new Client(address);
+    public boolean startClient(int port, InetAddress address) throws SocketException {
+        client = new Client(port, address);
         client.start();
         clientSide.client = client;
 

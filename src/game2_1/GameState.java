@@ -199,6 +199,7 @@ public class GameState implements Serializable {
                 if (targetProjectile.id < currentProjectile.id) {
                     projectiles.add(Debug.log(j - 1), targetProjectile);
                 } else if (j <= projectiles.size()) {
+                    if (j - 1 < 0) continue;
                     projectiles.set(
                             j - 1,
                             new Projectile(

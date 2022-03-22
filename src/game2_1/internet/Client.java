@@ -16,6 +16,22 @@ public class Client extends AbstractClient<NetPacket> {
      */
     public volatile byte id;
 
+
+    /**
+     * Creates a new client
+     * <ul>
+     *     <li>remote port: {@link utility.internet.IO#ClientPort}.</li>
+     * </ul>
+     * @param localPort The client's local port
+     * @param address The server's address.
+     * @throws SocketException Thrown by the DataGramsocket.
+     * @see java.net.DatagramSocket
+     */
+    public Client(int localPort, InetAddress address) throws SocketException {
+        super("Client", localPort, address);
+        id = -1;
+    }
+
     /**
      * Creates a new client with IO's standard ports.
      * <ul>

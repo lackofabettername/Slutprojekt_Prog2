@@ -15,6 +15,9 @@ public abstract class AbstractClient<T extends Serializable> extends IO<T> {
     public AbstractClient(String name, int localPort, InetAddress remoteAddress, int remotePort) throws SocketException {
         super(name, localPort, remoteAddress, remotePort);
     }
+    public AbstractClient(String name, int localPort, InetAddress remoteAddress) throws SocketException {
+        this(name, localPort, remoteAddress, ServerPort);
+    }
     public AbstractClient(String name, InetAddress remoteAddress) throws SocketException {
         this(name, ClientPort, remoteAddress, ServerPort);
     }

@@ -76,7 +76,7 @@ public class GameLogic {
                 }
                 accumulator -= timeStep;
 
-                if (simulations > 10) {
+                if (simulations > 30) {
                     //If the simulation takes more time than the timestep, it'll take more and more time to run the simulation.
                     //The simulation will fall further and further behind. This is unacceptable. Stop the simulation.
                     throw new IllegalStateException("The simulation is running too slow!");
@@ -106,8 +106,8 @@ public class GameLogic {
                                 if (gameState.readyPlayers == gameState.players.size()) {
                                     gameState.gameRunning = true;
 
-                                    server.send(new NetPacket(NetPacketType.SERVER_COMMAND, NetPacket.SERVER, "Start Music" + (System.currentTimeMillis() + 500)));
-                                    gameState.music.start(0, 500);
+                                    server.send(new NetPacket(NetPacketType.SERVER_COMMAND, NetPacket.SERVER, "Start Music" + (System.currentTimeMillis() + 2500)));
+                                    gameState.music.start(0, 2500);
                                 }
                             }
 

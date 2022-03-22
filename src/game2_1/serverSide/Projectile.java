@@ -1,8 +1,6 @@
 package game2_1.serverSide;
 
-import utility.Bounds2;
-import utility.MathF;
-import utility.Vector2;
+import utility.*;
 
 import processing.core.PGraphics;
 
@@ -17,6 +15,7 @@ import java.io.Serializable;
 public class Projectile implements Serializable {
     public final short id;
     public final byte owner;
+    private final Color col;
 
     public static final float RADIUS = 5;
 
@@ -33,6 +32,8 @@ public class Projectile implements Serializable {
         this.pos = pos;
         this.vel = vel;
         this.id = id;
+
+        col = new Color(ColorMode.HSVA, MathF.GoldenRatio * owner % 1, 1, 1, 1);
     }
 
     public Projectile(byte owner, float strength, Vector2 pos, Vector2 vel) {
@@ -64,7 +65,7 @@ public class Projectile implements Serializable {
     public void render(PGraphics g) {
         g.push();
 
-        g.stroke(1, 0, 0);
+        g.stroke(col.getRed(), col.getGreen(), col.getBlue());
         g.noFill();
 
         float d = RADIUS * 2 * MathF.lerp(strength, 1, 0.1f);

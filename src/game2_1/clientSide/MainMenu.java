@@ -8,6 +8,7 @@ import game2_1.events.MouseEvent;
 import game2_1.music.BeatMapper;
 import ui.*;
 import utility.Debug;
+import utility.internet.IO;
 import utility.style.Foreground;
 
 import processing.core.PGraphics;
@@ -28,6 +29,7 @@ public class MainMenu implements WindowLogic, UIListener {
     private final MenuButton btnStartClient, btnStopClient;
     private final MenuButton btnStartGame, btnMapSong;
     private final MenuText lblServerStat, lblClientStat;
+    private final MenuNumberField nmfClientPort;
     private final MenuTextField txfClientAddress;
 
 
@@ -56,9 +58,11 @@ public class MainMenu implements WindowLogic, UIListener {
         clientFramework.addMenuObject(btnStopClient = new MenuButton("Stop Client", 18));
 
         MenuFramework clientStats = new MenuFramework("Client Status framework");
-        clientStats.addMenuObject(lblClientStat = new MenuText("Client Status", 18), 0, 0, 1, 3);
+        clientStats.addMenuObject(lblClientStat = new MenuText("Client Status", 18), 0, 0, 2, 3);
 
         clientStats.addMenuObject(txfClientAddress = new MenuTextField("address", 14), 0, 3);
+        clientStats.addMenuObject(nmfClientPort = new MenuNumberField("port", 1), 1, 3);
+        nmfClientPort.value = IO.ClientPort;
         clientFramework.addMenuObject(clientStats, 2, 0, 3, 1);
 
         framework.addMenuObject(clientFramework, 1);
@@ -140,7 +144,8 @@ public class MainMenu implements WindowLogic, UIListener {
         } else if (caller == btnStartClient) {
             try {
                 InetAddress address = InetAddress.getByName(txfClientAddress.text);
-                if (parent.startClient(address))
+                int port = (int) nmfClientPort.value;
+                if (parent.startClient(port, address))
                     lblClientStat.text = "Running";
                 else
                     lblClientStat.text = "Client could not connect to the server";
