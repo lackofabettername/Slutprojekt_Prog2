@@ -7,3 +7,6 @@ To add songs:
 3. Add the song with the name "song.wav".
 4. Map the beats of the song in the editor or paste a finished beatmap into the same folder as the song.
 
+Dependencies:
+- https://processing.org/
+- https://github.com/cansik/processing-postfx
